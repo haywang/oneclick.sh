@@ -263,15 +263,77 @@ install_oh_my_zsh() {
 install_nvm() {
     clear
     echo -e "${BOLD_GREEN}Installing NVM...${NC}"
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
 
-    # Setup NVM in current shell
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    # Check if NVM is already installed
+    if [ -d "$HOME/.nvm" ]; then
+        echo -e "${BLUE}NVM is already installed.${NC}"
+        echo -e "${BLUE}Press any key to continue...${NC}"
+        read -n 1
+        return 0
+    fi
 
-    echo -e "${GREEN}NVM has been installed.${NC}"
-    echo -e "${GREEN}Please restart your terminal or source your profile to use NVM.${NC}"
-    echo -e "${GREEN}Press any key to continue...${NC}"
+    # Check for required tools
+    if ! command -v curl &> /dev/null && ! command -v wget &> /dev/null; then
+        echo -e "${BOLD_RED}Neither curl nor wget is installed. Please install one of them first.${NC}"
+        echo -e "${BLUE}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    # Try different installation methods
+    echo -e "${BLUE}Attempting to install NVM...${NC}"
+
+    # Method 1: Using curl (preferred)
+    if command -v curl &> /dev/null; then
+        echo -e "${BLUE}Installing using curl...${NC}"
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+    # Method 2: Using wget
+    elif command -v wget &> /dev/null; then
+        echo -e "${BLUE}Installing using wget...${NC}"
+        wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+    fi
+
+    # Check if installation was successful
+    if [ -d "$HOME/.nvm" ]; then
+        echo -e "${GREEN}NVM has been installed successfully!${NC}"
+
+        # Setup NVM in current shell
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+        # Add NVM to shell profile if not already there
+        local shell_profile
+        if [[ "$SHELL" == *"zsh"* ]]; then
+            shell_profile="$HOME/.zshrc"
+        else
+            shell_profile="$HOME/.bashrc"
+        fi
+
+        if ! grep -q "NVM_DIR" "$shell_profile"; then
+            echo -e "${BLUE}Adding NVM configuration to $shell_profile...${NC}"
+            cat >> "$shell_profile" << 'EOF'
+
+# NVM Configuration
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+EOF
+        fi
+
+        # Test NVM installation
+        if command -v nvm &> /dev/null; then
+            echo -e "${GREEN}NVM is working correctly. Version: $(nvm --version)${NC}"
+            echo -e "${YELLOW}Please restart your terminal or run 'source $shell_profile' to use NVM.${NC}"
+        else
+            echo -e "${BOLD_RED}NVM installation completed but command not found.${NC}"
+            echo -e "${YELLOW}Please restart your terminal or run 'source $shell_profile' to use NVM.${NC}"
+        fi
+    else
+        echo -e "${BOLD_RED}Failed to install NVM. Please check the error messages above.${NC}"
+    fi
+
+    echo -e "${BLUE}Press any key to continue...${NC}"
     read -n 1
 }
 
