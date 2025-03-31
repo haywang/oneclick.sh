@@ -189,8 +189,66 @@ install_zsh() {
 install_oh_my_zsh() {
     clear
     echo -e "${BOLD_GREEN}Installing Oh-My-ZSH...${NC}"
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-    echo -e "${GREEN}Oh-My-ZSH has been installed.${NC}"
+
+    # Check if ZSH is installed first
+    if ! command -v zsh &> /dev/null; then
+        echo -e "${GREEN}ZSH is not installed. Please install ZSH first.${NC}"
+        echo -e "${GREEN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    # Check if Oh My Zsh is already installed
+    if [ -d "$HOME/.oh-my-zsh" ]; then
+        echo -e "${GREEN}Oh My Zsh is already installed.${NC}"
+        echo -e "${GREEN}Press any key to continue...${NC}"
+        read -n 1
+        return 0
+    fi
+
+    # Try different installation methods
+    echo -e "${GREEN}Attempting to install Oh My Zsh...${NC}"
+
+    # Method 1: Using curl (preferred)
+    if command -v curl &> /dev/null; then
+        echo -e "${GREEN}Installing using curl...${NC}"
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    # Method 2: Using wget
+    elif command -v wget &> /dev/null; then
+        echo -e "${GREEN}Installing using wget...${NC}"
+        sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    # Method 3: Using fetch (BSD systems)
+    elif command -v fetch &> /dev/null; then
+        echo -e "${GREEN}Installing using fetch...${NC}"
+        sh -c "$(fetch -o - https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    else
+        echo -e "${GREEN}No supported download method found (curl, wget, or fetch).${NC}"
+        echo -e "${GREEN}Please install one of these tools and try again.${NC}"
+        echo -e "${GREEN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    # Check if installation was successful
+    if [ -d "$HOME/.oh-my-zsh" ]; then
+        echo -e "${GREEN}Oh My Zsh has been installed successfully!${NC}"
+
+        # Backup existing .zshrc if it exists
+        if [ -f "$HOME/.zshrc" ]; then
+            echo -e "${GREEN}Backing up existing .zshrc to .zshrc.pre-oh-my-zsh${NC}"
+            mv "$HOME/.zshrc" "$HOME/.zshrc.pre-oh-my-zsh"
+        fi
+
+        # Create new .zshrc
+        echo -e "${GREEN}Creating new .zshrc file...${NC}"
+        cp "$HOME/.oh-my-zsh/templates/zshrc.zsh-template" "$HOME/.zshrc"
+
+        echo -e "${GREEN}Installation complete! Please restart your terminal to apply changes.${NC}"
+        echo -e "${GREEN}Your old .zshrc has been backed up as .zshrc.pre-oh-my-zsh${NC}"
+    else
+        echo -e "${GREEN}Failed to install Oh My Zsh. Please check the error messages above.${NC}"
+    fi
+
     echo -e "${GREEN}Press any key to continue...${NC}"
     read -n 1
 }
