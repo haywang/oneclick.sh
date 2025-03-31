@@ -105,9 +105,82 @@ install_git() {
 install_zsh() {
     clear
     echo -e "${BOLD_GREEN}Installing ZSH...${NC}"
-    sudo apt update
-    sudo apt install -y zsh
-    echo -e "${GREEN}ZSH has been installed. Version: $(zsh --version)${NC}"
+
+    # Check if ZSH is already installed
+    if command -v zsh &> /dev/null; then
+        echo -e "${GREEN}ZSH is already installed. Version: $(zsh --version)${NC}"
+    else
+        # Install ZSH based on the system
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS
+            if command -v brew &> /dev/null; then
+                echo -e "${GREEN}Installing ZSH using Homebrew...${NC}"
+                brew install zsh
+            else
+                echo -e "${GREEN}Installing ZSH using MacPorts...${NC}"
+                sudo port install zsh zsh-completions
+            fi
+        else
+            # Linux systems
+            if command -v apt &> /dev/null; then
+                echo -e "${GREEN}Installing ZSH using apt...${NC}"
+                sudo apt update
+                sudo apt install -y zsh
+            elif command -v yum &> /dev/null; then
+                echo -e "${GREEN}Installing ZSH using yum...${NC}"
+                sudo yum update
+                sudo yum install -y zsh
+            elif command -v dnf &> /dev/null; then
+                echo -e "${GREEN}Installing ZSH using dnf...${NC}"
+                sudo dnf install -y zsh
+            elif command -v pacman &> /dev/null; then
+                echo -e "${GREEN}Installing ZSH using pacman...${NC}"
+                sudo pacman -S zsh
+            else
+                echo -e "${GREEN}Unsupported package manager. Please install ZSH manually.${NC}"
+                return 1
+            fi
+        fi
+    fi
+
+    # Verify ZSH installation
+    if command -v zsh &> /dev/null; then
+        echo -e "${GREEN}ZSH has been installed successfully. Version: $(zsh --version)${NC}"
+
+        # Check if ZSH is already the default shell
+        if [ "$SHELL" = "$(which zsh)" ]; then
+            echo -e "${GREEN}ZSH is already your default shell.${NC}"
+        else
+            echo -e "${GREEN}Setting ZSH as your default shell...${NC}"
+
+            # Add ZSH to authorized shells if not already there
+            if ! grep -q "$(which zsh)" /etc/shells; then
+                echo -e "${GREEN}Adding ZSH to authorized shells...${NC}"
+                sudo sh -c "echo $(which zsh) >> /etc/shells"
+            fi
+
+            # Set ZSH as default shell
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                # macOS
+                if [[ "$(uname -m)" == "arm64" ]]; then
+                    # M1 Macs
+                    chsh -s $(which zsh)
+                else
+                    # Intel Macs
+                    chsh -s /usr/local/bin/zsh
+                fi
+            else
+                # Linux systems
+                chsh -s $(which zsh)
+            fi
+
+            echo -e "${GREEN}ZSH has been set as your default shell.${NC}"
+            echo -e "${GREEN}Please log out and log back in for the changes to take effect.${NC}"
+        fi
+    else
+        echo -e "${GREEN}Failed to install ZSH. Please check the error messages above.${NC}"
+    fi
+
     echo -e "${GREEN}Press any key to continue...${NC}"
     read -n 1
 }
