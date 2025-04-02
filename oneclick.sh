@@ -6,8 +6,8 @@ BOLD_GREEN='\033[1;32m'
 RED='\033[0;31m'
 BOLD_RED='\033[1;31m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-BOLD_BLUE='\033[1;34m'
+CYAN='\033[0;36m'
+BOLD_CYAN='\033[1;36m'
 NC='\033[0m' # No Color
 
 # Function to display the main menu
@@ -74,7 +74,7 @@ show_diagnose_menu() {
 add_new_user() {
     clear
     echo -e "${BOLD_GREEN}Add new user and set sudoer${NC}"
-    echo -e "${BLUE}Enter username: ${NC}"
+    echo -e "${CYAN}Enter username: ${NC}"
     read username
 
     # Check if username is provided
@@ -91,7 +91,7 @@ add_new_user() {
     sudo usermod -aG sudo $username
 
     echo -e "${GREEN}User $username has been added and set as sudoer.${NC}"
-    echo -e "${BLUE}Press any key to continue...${NC}"
+    echo -e "${CYAN}Press any key to continue...${NC}"
     read -n 1
 }
 
@@ -113,33 +113,33 @@ install_zsh() {
 
     # Check if ZSH is already installed
     if command -v zsh &> /dev/null; then
-        echo -e "${BLUE}ZSH is already installed. Version: $(zsh --version)${NC}"
+        echo -e "${CYAN}ZSH is already installed. Version: $(zsh --version)${NC}"
     else
         # Install ZSH based on the system
         if [[ "$OSTYPE" == "darwin"* ]]; then
             # macOS
             if command -v brew &> /dev/null; then
-                echo -e "${BLUE}Installing ZSH using Homebrew...${NC}"
+                echo -e "${CYAN}Installing ZSH using Homebrew...${NC}"
                 brew install zsh
             else
-                echo -e "${BLUE}Installing ZSH using MacPorts...${NC}"
+                echo -e "${CYAN}Installing ZSH using MacPorts...${NC}"
                 sudo port install zsh zsh-completions
             fi
         else
             # Linux systems
             if command -v apt &> /dev/null; then
-                echo -e "${BLUE}Installing ZSH using apt...${NC}"
+                echo -e "${CYAN}Installing ZSH using apt...${NC}"
                 sudo apt update
                 sudo apt install -y zsh
             elif command -v yum &> /dev/null; then
-                echo -e "${BLUE}Installing ZSH using yum...${NC}"
+                echo -e "${CYAN}Installing ZSH using yum...${NC}"
                 sudo yum update
                 sudo yum install -y zsh
             elif command -v dnf &> /dev/null; then
-                echo -e "${BLUE}Installing ZSH using dnf...${NC}"
+                echo -e "${CYAN}Installing ZSH using dnf...${NC}"
                 sudo dnf install -y zsh
             elif command -v pacman &> /dev/null; then
-                echo -e "${BLUE}Installing ZSH using pacman...${NC}"
+                echo -e "${CYAN}Installing ZSH using pacman...${NC}"
                 sudo pacman -S zsh
             else
                 echo -e "${BOLD_RED}Unsupported package manager. Please install ZSH manually.${NC}"
@@ -154,13 +154,13 @@ install_zsh() {
 
         # Check if ZSH is already the default shell
         if [ "$SHELL" = "$(which zsh)" ]; then
-            echo -e "${BLUE}ZSH is already your default shell.${NC}"
+            echo -e "${CYAN}ZSH is already your default shell.${NC}"
         else
-            echo -e "${BLUE}Setting ZSH as your default shell...${NC}"
+            echo -e "${CYAN}Setting ZSH as your default shell...${NC}"
 
             # Add ZSH to authorized shells if not already there
             if ! grep -q "$(which zsh)" /etc/shells; then
-                echo -e "${BLUE}Adding ZSH to authorized shells...${NC}"
+                echo -e "${CYAN}Adding ZSH to authorized shells...${NC}"
                 sudo sh -c "echo $(which zsh) >> /etc/shells"
             fi
 
@@ -186,7 +186,7 @@ install_zsh() {
         echo -e "${BOLD_RED}Failed to install ZSH. Please check the error messages above.${NC}"
     fi
 
-    echo -e "${BLUE}Press any key to continue...${NC}"
+    echo -e "${CYAN}Press any key to continue...${NC}"
     read -n 1
 }
 
@@ -198,38 +198,38 @@ install_oh_my_zsh() {
     # Check if ZSH is installed first
     if ! command -v zsh &> /dev/null; then
         echo -e "${BOLD_RED}ZSH is not installed. Please install ZSH first.${NC}"
-        echo -e "${BLUE}Press any key to continue...${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
         read -n 1
         return 1
     fi
 
     # Check if Oh My Zsh is already installed
     if [ -d "$HOME/.oh-my-zsh" ]; then
-        echo -e "${BLUE}Oh My Zsh is already installed.${NC}"
-        echo -e "${BLUE}Press any key to continue...${NC}"
+        echo -e "${CYAN}Oh My Zsh is already installed.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
         read -n 1
         return 0
     fi
 
     # Try different installation methods
-    echo -e "${BLUE}Attempting to install Oh My Zsh...${NC}"
+    echo -e "${CYAN}Attempting to install Oh My Zsh...${NC}"
 
     # Method 1: Using curl (preferred)
     if command -v curl &> /dev/null; then
-        echo -e "${BLUE}Installing using curl...${NC}"
+        echo -e "${CYAN}Installing using curl...${NC}"
         sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     # Method 2: Using wget
     elif command -v wget &> /dev/null; then
-        echo -e "${BLUE}Installing using wget...${NC}"
+        echo -e "${CYAN}Installing using wget...${NC}"
         sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     # Method 3: Using fetch (BSD systems)
     elif command -v fetch &> /dev/null; then
-        echo -e "${BLUE}Installing using fetch...${NC}"
+        echo -e "${CYAN}Installing using fetch...${NC}"
         sh -c "$(fetch -o - https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     else
         echo -e "${BOLD_RED}No supported download method found (curl, wget, or fetch).${NC}"
         echo -e "${YELLOW}Please install one of these tools and try again.${NC}"
-        echo -e "${BLUE}Press any key to continue...${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
         read -n 1
         return 1
     fi
@@ -240,22 +240,22 @@ install_oh_my_zsh() {
 
         # Backup existing .zshrc if it exists
         if [ -f "$HOME/.zshrc" ]; then
-            echo -e "${BLUE}Backing up existing .zshrc to .zshrc.pre-oh-my-zsh${NC}"
+            echo -e "${CYAN}Backing up existing .zshrc to .zshrc.pre-oh-my-zsh${NC}"
             mv "$HOME/.zshrc" "$HOME/.zshrc.pre-oh-my-zsh"
         fi
 
         # Create new .zshrc
-        echo -e "${BLUE}Creating new .zshrc file...${NC}"
+        echo -e "${CYAN}Creating new .zshrc file...${NC}"
         cp "$HOME/.oh-my-zsh/templates/zshrc.zsh-template" "$HOME/.zshrc"
 
         echo -e "${GREEN}Installation complete!${NC}"
         echo -e "${YELLOW}Please restart your terminal to apply changes.${NC}"
-        echo -e "${BLUE}Your old .zshrc has been backed up as .zshrc.pre-oh-my-zsh${NC}"
+        echo -e "${CYAN}Your old .zshrc has been backed up as .zshrc.pre-oh-my-zsh${NC}"
     else
         echo -e "${BOLD_RED}Failed to install Oh My Zsh. Please check the error messages above.${NC}"
     fi
 
-    echo -e "${BLUE}Press any key to continue...${NC}"
+    echo -e "${CYAN}Press any key to continue...${NC}"
     read -n 1
 }
 
@@ -266,8 +266,8 @@ install_nvm() {
 
     # Check if NVM is already installed
     if [ -d "$HOME/.nvm" ]; then
-        echo -e "${BLUE}NVM is already installed.${NC}"
-        echo -e "${BLUE}Press any key to continue...${NC}"
+        echo -e "${CYAN}NVM is already installed.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
         read -n 1
         return 0
     fi
@@ -275,21 +275,21 @@ install_nvm() {
     # Check for required tools
     if ! command -v curl &> /dev/null && ! command -v wget &> /dev/null; then
         echo -e "${BOLD_RED}Neither curl nor wget is installed. Please install one of them first.${NC}"
-        echo -e "${BLUE}Press any key to continue...${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
         read -n 1
         return 1
     fi
 
     # Try different installation methods
-    echo -e "${BLUE}Attempting to install NVM...${NC}"
+    echo -e "${CYAN}Attempting to install NVM...${NC}"
 
     # Method 1: Using curl (preferred)
     if command -v curl &> /dev/null; then
-        echo -e "${BLUE}Installing using curl...${NC}"
+        echo -e "${CYAN}Installing using curl...${NC}"
         curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
     # Method 2: Using wget
     elif command -v wget &> /dev/null; then
-        echo -e "${BLUE}Installing using wget...${NC}"
+        echo -e "${CYAN}Installing using wget...${NC}"
         wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
     fi
 
@@ -311,7 +311,7 @@ install_nvm() {
         fi
 
         if ! grep -q "NVM_DIR" "$shell_profile"; then
-            echo -e "${BLUE}Adding NVM configuration to $shell_profile...${NC}"
+            echo -e "${CYAN}Adding NVM configuration to $shell_profile...${NC}"
             cat >> "$shell_profile" << 'EOF'
 
 # NVM Configuration
@@ -333,7 +333,7 @@ EOF
         echo -e "${BOLD_RED}Failed to install NVM. Please check the error messages above.${NC}"
     fi
 
-    echo -e "${BLUE}Press any key to continue...${NC}"
+    echo -e "${CYAN}Press any key to continue...${NC}"
     read -n 1
 }
 
@@ -401,7 +401,7 @@ install_nginx() {
 ssh_tool() {
     clear
     echo -e "${BOLD_GREEN}SSH Tool${NC}"
-    echo -e "${BLUE}Enter server address (user@hostname): ${NC}"
+    echo -e "${CYAN}Enter server address (user@hostname): ${NC}"
     read server
 
     # Check if server is provided
@@ -414,7 +414,7 @@ ssh_tool() {
     # Connect to server
     ssh $server
 
-    echo -e "${BLUE}SSH session ended. Press any key to continue...${NC}"
+    echo -e "${CYAN}SSH session ended. Press any key to continue...${NC}"
     read -n 1
 }
 
@@ -443,10 +443,10 @@ check_port_usage() {
 scp_local_to_server() {
     clear
     echo -e "${BOLD_GREEN}SCP: Local to Server${NC}"
-    echo -e "${BLUE}Enter local file path: ${NC}"
+    echo -e "${CYAN}Enter local file path: ${NC}"
     read local_path
 
-    echo -e "${BLUE}Enter server destination (user@hostname:path): ${NC}"
+    echo -e "${CYAN}Enter server destination (user@hostname:path): ${NC}"
     read server_path
 
     # Check if paths are provided
@@ -460,7 +460,7 @@ scp_local_to_server() {
     scp "$local_path" "$server_path"
 
     echo -e "${GREEN}File transfer completed.${NC}"
-    echo -e "${BLUE}Press any key to continue...${NC}"
+    echo -e "${CYAN}Press any key to continue...${NC}"
     read -n 1
 }
 
