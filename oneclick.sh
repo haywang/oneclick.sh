@@ -422,20 +422,80 @@ ssh_tool() {
 check_port_usage() {
     clear
     echo -e "${BOLD_GREEN}Check Port Usage${NC}"
-    echo -e "${GREEN}Enter port number (leave empty to show all): ${NC}"
+    echo -e "${CYAN}Enter port number (leave empty to show all): ${NC}"
     read port
 
-    if [ -z "$port" ]; then
-        # Show all open ports
-        echo -e "${GREEN}Showing all open ports:${NC}"
-        sudo netstat -tulpn
-    else
-        # Show specific port
-        echo -e "${GREEN}Checking port $port:${NC}"
-        sudo netstat -tulpn | grep ":$port "
+    # Function to check which command is available
+    check_command() {
+        if command -v netstat &> /dev/null; then
+            echo "netstat"
+        elif command -v ss &> /dev/null; then
+            echo "ss"
+        elif command -v lsof &> /dev/null; then
+            echo "lsof"
+        else
+            echo ""
+        fi
+    }
+
+    # Get available command
+    CMD=$(check_command)
+
+    if [ -z "$CMD" ]; then
+        echo -e "${BOLD_RED}No port checking command found. Installing net-tools...${NC}"
+        if command -v apt &> /dev/null; then
+            sudo apt update
+            sudo apt install -y net-tools
+            CMD="netstat"
+        elif command -v yum &> /dev/null; then
+            sudo yum install -y net-tools
+            CMD="netstat"
+        elif command -v dnf &> /dev/null; then
+            sudo dnf install -y net-tools
+            CMD="netstat"
+        elif command -v pacman &> /dev/null; then
+            sudo pacman -S net-tools
+            CMD="netstat"
+        else
+            echo -e "${BOLD_RED}Unable to install net-tools. Please install it manually.${NC}"
+            echo -e "${CYAN}Press any key to continue...${NC}"
+            read -n 1
+            return 1
+        fi
     fi
 
-    echo -e "${GREEN}Press any key to continue...${NC}"
+    # Show port information based on available command
+    case $CMD in
+        "netstat")
+            if [ -z "$port" ]; then
+                echo -e "${CYAN}Showing all open ports using netstat:${NC}"
+                sudo netstat -tulpn
+            else
+                echo -e "${CYAN}Checking port $port using netstat:${NC}"
+                sudo netstat -tulpn | grep ":$port "
+            fi
+            ;;
+        "ss")
+            if [ -z "$port" ]; then
+                echo -e "${CYAN}Showing all open ports using ss:${NC}"
+                sudo ss -tulpn
+            else
+                echo -e "${CYAN}Checking port $port using ss:${NC}"
+                sudo ss -tulpn | grep ":$port "
+            fi
+            ;;
+        "lsof")
+            if [ -z "$port" ]; then
+                echo -e "${CYAN}Showing all open ports using lsof:${NC}"
+                sudo lsof -i -P -n | grep LISTEN
+            else
+                echo -e "${CYAN}Checking port $port using lsof:${NC}"
+                sudo lsof -i:$port -P -n | grep LISTEN
+            fi
+            ;;
+    esac
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
     read -n 1
 }
 
