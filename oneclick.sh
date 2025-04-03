@@ -53,11 +53,10 @@ show_tools_menu() {
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}1. SSH${NC}"
     echo -e "${GREEN}2. Look port use${NC}"
-    echo -e "${GREEN}3. SCP local to server${NC}"
-    echo -e "${GREEN}4. SCP server to local${NC}"
-    echo -e "${GREEN}5. Install Homebrew${NC}"
-    echo -e "${GREEN}6. Git Remove Cached Directory${NC}"
-    echo -e "${GREEN}7. Rsync Tools${NC}"
+    echo -e "${GREEN}3. SCP Tools${NC}"
+    echo -e "${GREEN}4. Install Homebrew${NC}"
+    echo -e "${GREEN}5. Git Remove Cached Directory${NC}"
+    echo -e "${GREEN}6. Rsync Tools${NC}"
     echo -e "${GREEN}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
@@ -125,6 +124,267 @@ show_rsync_menu() {
     echo -e "${GREEN}0. Back${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
+}
+
+# Function to display SCP submenu
+show_scp_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}            SCP TOOLS                 ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Copy File: Local -> Remote${NC}"
+    echo -e "${GREEN}2. Copy File: Remote -> Local${NC}"
+    echo -e "${GREEN}3. Copy Directory: Local -> Remote${NC}"
+    echo -e "${GREEN}4. Copy Directory: Remote -> Local${NC}"
+    echo -e "${GREEN}5. Copy Multiple Files${NC}"
+    echo -e "${GREEN}0. Back${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}Please enter your choice: ${NC}"
+}
+
+# Function to handle SCP operations
+scp_tools() {
+    local choice
+
+    while true; do
+        show_scp_menu
+        read choice
+
+        case $choice in
+            1) scp_file_to_remote ;;
+            2) scp_file_from_remote ;;
+            3) scp_directory_to_remote ;;
+            4) scp_directory_from_remote ;;
+            5) scp_multiple_files ;;
+            0) break ;;
+            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
+        esac
+    done
+}
+
+# Function for copying single file to remote
+scp_file_to_remote() {
+    clear
+    echo -e "${BOLD_GREEN}SCP: Copy File to Remote${NC}"
+    echo -e "${CYAN}Enter local file path: ${NC}"
+    read local_path
+
+    if [ ! -f "$local_path" ]; then
+        echo -e "${BOLD_RED}Error: File does not exist.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${CYAN}Enter remote destination (user@host:path): ${NC}"
+    read remote_path
+
+    if [ -z "$local_path" ] || [ -z "$remote_path" ]; then
+        echo -e "${BOLD_RED}Both paths must be provided.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${CYAN}Copying file...${NC}"
+    scp -p "$local_path" "$remote_path"
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}File copied successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Copy failed. Please check the paths and try again.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function for copying single file from remote
+scp_file_from_remote() {
+    clear
+    echo -e "${BOLD_GREEN}SCP: Copy File from Remote${NC}"
+    echo -e "${CYAN}Enter remote file path (user@host:path): ${NC}"
+    read remote_path
+    echo -e "${CYAN}Enter local destination path: ${NC}"
+    read local_path
+
+    if [ -z "$remote_path" ] || [ -z "$local_path" ]; then
+        echo -e "${BOLD_RED}Both paths must be provided.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${CYAN}Copying file...${NC}"
+    scp -p "$remote_path" "$local_path"
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}File copied successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Copy failed. Please check the paths and try again.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function for copying directory to remote
+scp_directory_to_remote() {
+    clear
+    echo -e "${BOLD_GREEN}SCP: Copy Directory to Remote${NC}"
+    echo -e "${CYAN}Enter local directory path: ${NC}"
+    read local_path
+
+    if [ ! -d "$local_path" ]; then
+        echo -e "${BOLD_RED}Error: Directory does not exist.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${CYAN}Enter remote destination (user@host:path): ${NC}"
+    read remote_path
+
+    if [ -z "$local_path" ] || [ -z "$remote_path" ]; then
+        echo -e "${BOLD_RED}Both paths must be provided.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${CYAN}Select copy options:${NC}"
+    echo -e "${GREEN}1. Copy directory contents${NC}"
+    echo -e "${GREEN}2. Copy directory itself${NC}"
+    read -r copy_option
+
+    echo -e "${CYAN}Copying directory...${NC}"
+    case $copy_option in
+        1)
+            scp -rp "$local_path"/* "$remote_path"
+            ;;
+        2)
+            scp -rp "$local_path" "$remote_path"
+            ;;
+        *)
+            echo -e "${BOLD_RED}Invalid option. Using default (copy directory itself)${NC}"
+            scp -rp "$local_path" "$remote_path"
+            ;;
+    esac
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}Directory copied successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Copy failed. Please check the paths and try again.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function for copying directory from remote
+scp_directory_from_remote() {
+    clear
+    echo -e "${BOLD_GREEN}SCP: Copy Directory from Remote${NC}"
+    echo -e "${CYAN}Enter remote directory path (user@host:path): ${NC}"
+    read remote_path
+    echo -e "${CYAN}Enter local destination path: ${NC}"
+    read local_path
+
+    if [ -z "$remote_path" ] || [ -z "$local_path" ]; then
+        echo -e "${BOLD_RED}Both paths must be provided.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${CYAN}Select copy options:${NC}"
+    echo -e "${GREEN}1. Copy directory contents${NC}"
+    echo -e "${GREEN}2. Copy directory itself${NC}"
+    read -r copy_option
+
+    echo -e "${CYAN}Copying directory...${NC}"
+    case $copy_option in
+        1)
+            mkdir -p "$local_path"
+            scp -rp "$remote_path"/* "$local_path"
+            ;;
+        2)
+            scp -rp "$remote_path" "$local_path"
+            ;;
+        *)
+            echo -e "${BOLD_RED}Invalid option. Using default (copy directory itself)${NC}"
+            scp -rp "$remote_path" "$local_path"
+            ;;
+    esac
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}Directory copied successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Copy failed. Please check the paths and try again.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function for copying multiple files
+scp_multiple_files() {
+    clear
+    echo -e "${BOLD_GREEN}SCP: Copy Multiple Files${NC}"
+    echo -e "${CYAN}Select transfer direction:${NC}"
+    echo -e "${GREEN}1. Local -> Remote${NC}"
+    echo -e "${GREEN}2. Remote -> Local${NC}"
+    read -r direction
+
+    case $direction in
+        1)
+            echo -e "${CYAN}Enter local files (space-separated): ${NC}"
+            read -r local_files
+            echo -e "${CYAN}Enter remote destination (user@host:path): ${NC}"
+            read -r remote_path
+
+            if [ -z "$local_files" ] || [ -z "$remote_path" ]; then
+                echo -e "${BOLD_RED}Both source files and destination must be provided.${NC}"
+                echo -e "${CYAN}Press any key to continue...${NC}"
+                read -n 1
+                return 1
+            fi
+
+            echo -e "${CYAN}Copying files...${NC}"
+            scp -p $local_files "$remote_path"
+            ;;
+        2)
+            echo -e "${CYAN}Enter remote files (space-separated, format: user@host:path/to/file): ${NC}"
+            read -r remote_files
+            echo -e "${CYAN}Enter local destination directory: ${NC}"
+            read -r local_path
+
+            if [ -z "$remote_files" ] || [ -z "$local_path" ]; then
+                echo -e "${BOLD_RED}Both source files and destination must be provided.${NC}"
+                echo -e "${CYAN}Press any key to continue...${NC}"
+                read -n 1
+                return 1
+            fi
+
+            echo -e "${CYAN}Copying files...${NC}"
+            scp -p $remote_files "$local_path"
+            ;;
+        *)
+            echo -e "${BOLD_RED}Invalid option.${NC}"
+            echo -e "${CYAN}Press any key to continue...${NC}"
+            read -n 1
+            return 1
+            ;;
+    esac
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}Files copied successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Copy failed. Please check the paths and try again.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
 }
 
 # Function to add new user and set sudoer
@@ -1431,11 +1691,10 @@ tools_menu() {
         case $choice in
             1) ssh_tool ;;
             2) check_port_usage ;;
-            3) scp_local_to_server ;;
-            4) scp_server_to_local ;;
-            5) install_homebrew ;;
-            6) git_rm_cached_directory ;;
-            7) rsync_tools ;;
+            3) scp_tools ;;
+            4) install_homebrew ;;
+            5) git_rm_cached_directory ;;
+            6) rsync_tools ;;
             0) break ;;
             *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
