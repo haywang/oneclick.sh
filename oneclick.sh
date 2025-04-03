@@ -57,6 +57,7 @@ show_tools_menu() {
     echo -e "${GREEN}4. SCP server to local${NC}"
     echo -e "${GREEN}5. Install Homebrew${NC}"
     echo -e "${GREEN}6. Git Remove Cached Directory${NC}"
+    echo -e "${GREEN}7. Rsync Tools${NC}"
     echo -e "${GREEN}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
@@ -107,6 +108,21 @@ show_ytdlp_menu() {
     echo -e "${GREEN}2. Download Single Video${NC}"
     echo -e "${GREEN}3. Download Playlist${NC}"
     echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}Please enter your choice: ${NC}"
+}
+
+# Function to display Rsync submenu
+show_rsync_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}            RSYNC TOOLS               ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Sync Local -> Remote${NC}"
+    echo -e "${GREEN}2. Sync Remote -> Local${NC}"
+    echo -e "${GREEN}3. Sync Local Directory${NC}"
+    echo -e "${GREEN}4. Backup with Timestamp${NC}"
+    echo -e "${GREEN}0. Back${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
 }
@@ -1132,6 +1148,255 @@ download_playlist() {
     read -n 1
 }
 
+# Function to handle rsync operations
+rsync_tools() {
+    local choice
+
+    while true; do
+        show_rsync_menu
+        read choice
+
+        case $choice in
+            1) rsync_local_to_remote ;;
+            2) rsync_remote_to_local ;;
+            3) rsync_local_directory ;;
+            4) rsync_backup_timestamp ;;
+            0) break ;;
+            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
+        esac
+    done
+}
+
+# Function for rsync local to remote
+rsync_local_to_remote() {
+    clear
+    echo -e "${BOLD_GREEN}Rsync: Local to Remote${NC}"
+    echo -e "${CYAN}Enter local source path: ${NC}"
+    read local_path
+    echo -e "${CYAN}Enter remote destination (user@host:path): ${NC}"
+    read remote_path
+
+    if [ -z "$local_path" ] || [ -z "$remote_path" ]; then
+        echo -e "${BOLD_RED}Both paths must be provided.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${CYAN}Select sync options:${NC}"
+    echo -e "${GREEN}1. Simple sync (no delete)${NC}"
+    echo -e "${GREEN}2. Mirror (with delete)${NC}"
+    echo -e "${GREEN}3. Dry run (test only)${NC}"
+    read -r sync_option
+
+    local rsync_opts="-avzh --progress"
+    case $sync_option in
+        1)
+            echo -e "${CYAN}Performing simple sync...${NC}"
+            ;;
+        2)
+            echo -e "${YELLOW}Warning: Mirror mode will delete files in destination that don't exist in source${NC}"
+            echo -e "${CYAN}Continue? (y/N): ${NC}"
+            read -r confirm
+            if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+                echo -e "${CYAN}Operation cancelled.${NC}"
+                echo -e "${CYAN}Press any key to continue...${NC}"
+                read -n 1
+                return
+            fi
+            rsync_opts="$rsync_opts --delete"
+            ;;
+        3)
+            rsync_opts="$rsync_opts --dry-run"
+            echo -e "${CYAN}Performing dry run (no actual changes)...${NC}"
+            ;;
+        *)
+            echo -e "${BOLD_RED}Invalid option. Using simple sync.${NC}"
+            ;;
+    esac
+
+    echo -e "${CYAN}Syncing files...${NC}"
+    rsync $rsync_opts "$local_path" "$remote_path"
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}Sync completed successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Sync failed. Please check the paths and try again.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function for rsync remote to local
+rsync_remote_to_local() {
+    clear
+    echo -e "${BOLD_GREEN}Rsync: Remote to Local${NC}"
+    echo -e "${CYAN}Enter remote source (user@host:path): ${NC}"
+    read remote_path
+    echo -e "${CYAN}Enter local destination path: ${NC}"
+    read local_path
+
+    if [ -z "$remote_path" ] || [ -z "$local_path" ]; then
+        echo -e "${BOLD_RED}Both paths must be provided.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${CYAN}Select sync options:${NC}"
+    echo -e "${GREEN}1. Simple sync (no delete)${NC}"
+    echo -e "${GREEN}2. Mirror (with delete)${NC}"
+    echo -e "${GREEN}3. Dry run (test only)${NC}"
+    read -r sync_option
+
+    local rsync_opts="-avzh --progress"
+    case $sync_option in
+        1)
+            echo -e "${CYAN}Performing simple sync...${NC}"
+            ;;
+        2)
+            echo -e "${YELLOW}Warning: Mirror mode will delete files in destination that don't exist in source${NC}"
+            echo -e "${CYAN}Continue? (y/N): ${NC}"
+            read -r confirm
+            if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+                echo -e "${CYAN}Operation cancelled.${NC}"
+                echo -e "${CYAN}Press any key to continue...${NC}"
+                read -n 1
+                return
+            fi
+            rsync_opts="$rsync_opts --delete"
+            ;;
+        3)
+            rsync_opts="$rsync_opts --dry-run"
+            echo -e "${CYAN}Performing dry run (no actual changes)...${NC}"
+            ;;
+        *)
+            echo -e "${BOLD_RED}Invalid option. Using simple sync.${NC}"
+            ;;
+    esac
+
+    echo -e "${CYAN}Syncing files...${NC}"
+    rsync $rsync_opts "$remote_path" "$local_path"
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}Sync completed successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Sync failed. Please check the paths and try again.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function for rsync local directory
+rsync_local_directory() {
+    clear
+    echo -e "${BOLD_GREEN}Rsync: Local Directory Sync${NC}"
+    echo -e "${CYAN}Enter source directory: ${NC}"
+    read source_dir
+    echo -e "${CYAN}Enter destination directory: ${NC}"
+    read dest_dir
+
+    if [ -z "$source_dir" ] || [ -z "$dest_dir" ]; then
+        echo -e "${BOLD_RED}Both directories must be provided.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${CYAN}Select sync options:${NC}"
+    echo -e "${GREEN}1. Simple sync (no delete)${NC}"
+    echo -e "${GREEN}2. Mirror (with delete)${NC}"
+    echo -e "${GREEN}3. Dry run (test only)${NC}"
+    read -r sync_option
+
+    local rsync_opts="-avzh --progress"
+    case $sync_option in
+        1)
+            echo -e "${CYAN}Performing simple sync...${NC}"
+            ;;
+        2)
+            echo -e "${YELLOW}Warning: Mirror mode will delete files in destination that don't exist in source${NC}"
+            echo -e "${CYAN}Continue? (y/N): ${NC}"
+            read -r confirm
+            if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+                echo -e "${CYAN}Operation cancelled.${NC}"
+                echo -e "${CYAN}Press any key to continue...${NC}"
+                read -n 1
+                return
+            fi
+            rsync_opts="$rsync_opts --delete"
+            ;;
+        3)
+            rsync_opts="$rsync_opts --dry-run"
+            echo -e "${CYAN}Performing dry run (no actual changes)...${NC}"
+            ;;
+        *)
+            echo -e "${BOLD_RED}Invalid option. Using simple sync.${NC}"
+            ;;
+    esac
+
+    echo -e "${CYAN}Syncing directories...${NC}"
+    rsync $rsync_opts "$source_dir/" "$dest_dir/"
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}Sync completed successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Sync failed. Please check the directories and try again.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function for rsync backup with timestamp
+rsync_backup_timestamp() {
+    clear
+    echo -e "${BOLD_GREEN}Rsync: Backup with Timestamp${NC}"
+    echo -e "${CYAN}Enter source directory: ${NC}"
+    read source_dir
+    echo -e "${CYAN}Enter backup destination base directory: ${NC}"
+    read backup_base
+
+    if [ -z "$source_dir" ] || [ -z "$backup_base" ]; then
+        echo -e "${BOLD_RED}Both directories must be provided.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    # Create timestamp
+    local timestamp=$(date +%Y%m%d_%H%M%S)
+    local backup_dir="${backup_base}/backup_${timestamp}"
+
+    echo -e "${CYAN}Backup will be created in: ${backup_dir}${NC}"
+    echo -e "${CYAN}Continue? (Y/n): ${NC}"
+    read -r confirm
+    if [[ "$confirm" =~ ^[Nn]$ ]]; then
+        echo -e "${CYAN}Operation cancelled.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return
+    fi
+
+    # Create backup directory if it doesn't exist
+    mkdir -p "$backup_dir"
+
+    echo -e "${CYAN}Creating backup...${NC}"
+    rsync -avzh --progress "$source_dir/" "$backup_dir/"
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}Backup completed successfully.${NC}"
+        echo -e "${GREEN}Backup location: ${backup_dir}${NC}"
+    else
+        echo -e "${BOLD_RED}Backup failed. Please check the directories and try again.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
 # Handle Setup Server menu options
 setup_server_menu() {
     local choice
@@ -1170,6 +1435,7 @@ tools_menu() {
             4) scp_server_to_local ;;
             5) install_homebrew ;;
             6) git_rm_cached_directory ;;
+            7) rsync_tools ;;
             0) break ;;
             *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
