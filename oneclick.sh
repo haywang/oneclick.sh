@@ -59,7 +59,28 @@ show_tools_menu() {
     echo -e "${GREEN}4. Install Homebrew${NC}"
     echo -e "${GREEN}5. Git Remove Cached Directory${NC}"
     echo -e "${GREEN}6. Rsync Tools${NC}"
+    echo -e "${GREEN}7. UFW Management${NC}"
     echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}Please enter your choice: ${NC}"
+}
+
+# Function to display UFW Management submenu
+show_ufw_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}          UFW MANAGEMENT              ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Install UFW${NC}"
+    echo -e "${GREEN}2. Enable UFW${NC}"
+    echo -e "${GREEN}3. Disable UFW${NC}"
+    echo -e "${GREEN}4. Show UFW Status${NC}"
+    echo -e "${GREEN}5. Allow Port${NC}"
+    echo -e "${GREEN}6. Deny Port${NC}"
+    echo -e "${GREEN}7. Delete Rule${NC}"
+    echo -e "${GREEN}8. Reset UFW Rules${NC}"
+    echo -e "${GREEN}9. Show UFW Rules Numbered${NC}"
+    echo -e "${GREEN}0. Back${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
 }
@@ -2351,6 +2372,265 @@ nginx_management_menu() {
     done
 }
 
+# Function to install UFW
+install_ufw() {
+    clear
+    echo -e "${BOLD_GREEN}Installing UFW...${NC}"
+
+    # 检测系统类型并安装
+    if command -v apt &> /dev/null; then
+        sudo apt update
+        sudo apt install -y ufw
+    elif command -v dnf &> /dev/null; then
+        sudo dnf install -y ufw
+    elif command -v yum &> /dev/null; then
+        sudo yum install -y ufw
+    elif command -v pacman &> /dev/null; then
+        sudo pacman -S ufw
+    else
+        echo -e "${BOLD_RED}Unsupported package manager. Please install UFW manually.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    if command -v ufw &> /dev/null; then
+        echo -e "${GREEN}UFW installed successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Failed to install UFW.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to enable UFW
+enable_ufw() {
+    clear
+    echo -e "${BOLD_GREEN}Enabling UFW...${NC}"
+    echo -e "${YELLOW}Warning: This might affect your current SSH connection.${NC}"
+    echo -e "${YELLOW}Make sure you have allowed SSH (port 22) first.${NC}"
+    echo -e "${CYAN}Do you want to allow SSH before enabling UFW? (Y/n): ${NC}"
+    read -r response
+
+    if [[ "$response" =~ ^[Yy]$ ]] || [[ -z "$response" ]]; then
+        echo -e "${CYAN}Allowing SSH (port 22)...${NC}"
+        sudo ufw allow 22/tcp
+    fi
+
+    echo -e "${CYAN}Enabling UFW... Are you sure? (y/N): ${NC}"
+    read -r confirm
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        sudo ufw enable
+        echo -e "${GREEN}UFW has been enabled.${NC}"
+    else
+        echo -e "${CYAN}Operation cancelled.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to disable UFW
+disable_ufw() {
+    clear
+    echo -e "${BOLD_GREEN}Disabling UFW...${NC}"
+    echo -e "${YELLOW}Warning: This will disable your firewall.${NC}"
+    echo -e "${CYAN}Are you sure? (y/N): ${NC}"
+    read -r confirm
+
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        sudo ufw disable
+        echo -e "${GREEN}UFW has been disabled.${NC}"
+    else
+        echo -e "${CYAN}Operation cancelled.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to show UFW status
+show_ufw_status() {
+    clear
+    echo -e "${BOLD_GREEN}UFW Status${NC}"
+    sudo ufw status verbose
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to allow port
+allow_port() {
+    clear
+    echo -e "${BOLD_GREEN}Allow Port${NC}"
+    echo -e "${CYAN}Enter port number: ${NC}"
+    read port
+
+    if [ -z "$port" ]; then
+        echo -e "${BOLD_RED}Port number cannot be empty.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${CYAN}Select protocol:${NC}"
+    echo -e "${GREEN}1. TCP${NC}"
+    echo -e "${GREEN}2. UDP${NC}"
+    echo -e "${GREEN}3. Both${NC}"
+    read -r protocol_choice
+
+    case $protocol_choice in
+        1)
+            sudo ufw allow $port/tcp
+            echo -e "${GREEN}Allowed TCP port $port${NC}"
+            ;;
+        2)
+            sudo ufw allow $port/udp
+            echo -e "${GREEN}Allowed UDP port $port${NC}"
+            ;;
+        3)
+            sudo ufw allow $port
+            echo -e "${GREEN}Allowed port $port (TCP & UDP)${NC}"
+            ;;
+        *)
+            echo -e "${BOLD_RED}Invalid choice.${NC}"
+            ;;
+    esac
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to deny port
+deny_port() {
+    clear
+    echo -e "${BOLD_GREEN}Deny Port${NC}"
+    echo -e "${CYAN}Enter port number: ${NC}"
+    read port
+
+    if [ -z "$port" ]; then
+        echo -e "${BOLD_RED}Port number cannot be empty.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${CYAN}Select protocol:${NC}"
+    echo -e "${GREEN}1. TCP${NC}"
+    echo -e "${GREEN}2. UDP${NC}"
+    echo -e "${GREEN}3. Both${NC}"
+    read -r protocol_choice
+
+    case $protocol_choice in
+        1)
+            sudo ufw deny $port/tcp
+            echo -e "${GREEN}Denied TCP port $port${NC}"
+            ;;
+        2)
+            sudo ufw deny $port/udp
+            echo -e "${GREEN}Denied UDP port $port${NC}"
+            ;;
+        3)
+            sudo ufw deny $port
+            echo -e "${GREEN}Denied port $port (TCP & UDP)${NC}"
+            ;;
+        *)
+            echo -e "${BOLD_RED}Invalid choice.${NC}"
+            ;;
+    esac
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to delete UFW rule
+delete_ufw_rule() {
+    clear
+    echo -e "${BOLD_GREEN}Delete UFW Rule${NC}"
+    echo -e "${CYAN}Current rules:${NC}"
+    sudo ufw status numbered
+
+    echo -e "${CYAN}Enter rule number to delete: ${NC}"
+    read rule_number
+
+    if [ -z "$rule_number" ]; then
+        echo -e "${BOLD_RED}Rule number cannot be empty.${NC}"
+    else
+        echo -e "${YELLOW}Are you sure you want to delete rule $rule_number? (y/N): ${NC}"
+        read -r confirm
+        if [[ "$confirm" =~ ^[Yy]$ ]]; then
+            sudo ufw delete $rule_number
+            echo -e "${GREEN}Rule deleted.${NC}"
+        else
+            echo -e "${CYAN}Operation cancelled.${NC}"
+        fi
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to reset UFW rules
+reset_ufw_rules() {
+    clear
+    echo -e "${BOLD_GREEN}Reset UFW Rules${NC}"
+    echo -e "${YELLOW}Warning: This will delete all existing rules!${NC}"
+    echo -e "${CYAN}Are you sure? (y/N): ${NC}"
+    read -r confirm
+
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}Do you want to keep SSH access (recommended)? (Y/n): ${NC}"
+        read -r keep_ssh
+
+        sudo ufw --force reset
+
+        if [[ ! "$keep_ssh" =~ ^[Nn]$ ]]; then
+            echo -e "${CYAN}Allowing SSH (port 22)...${NC}"
+            sudo ufw allow 22/tcp
+        fi
+
+        echo -e "${GREEN}UFW rules have been reset.${NC}"
+    else
+        echo -e "${CYAN}Operation cancelled.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to show UFW rules numbered
+show_ufw_rules() {
+    clear
+    echo -e "${BOLD_GREEN}UFW Rules (Numbered)${NC}"
+    sudo ufw status numbered
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to handle UFW Management menu
+ufw_management_menu() {
+    local choice
+
+    while true; do
+        show_ufw_menu
+        read choice
+
+        case $choice in
+            1) install_ufw ;;
+            2) enable_ufw ;;
+            3) disable_ufw ;;
+            4) show_ufw_status ;;
+            5) allow_port ;;
+            6) deny_port ;;
+            7) delete_ufw_rule ;;
+            8) reset_ufw_rules ;;
+            9) show_ufw_rules ;;
+            0) break ;;
+            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
+        esac
+    done
+}
+
 # Handle Setup Server menu options
 setup_server_menu() {
     local choice
@@ -2389,6 +2669,7 @@ tools_menu() {
             4) install_homebrew ;;
             5) git_rm_cached_directory ;;
             6) rsync_tools ;;
+            7) ufw_management_menu ;;
             0) break ;;
             *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
