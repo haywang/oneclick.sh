@@ -90,6 +90,7 @@ show_pm2_menu() {
     echo -e "${GREEN}9. Setup Startup Script${NC}"
     echo -e "${GREEN}10. Save Current Process List${NC}"
     echo -e "${GREEN}11. Update PM2${NC}"
+    echo -e "${GREEN}12. Kill PM2 Daemon${NC}"
     echo -e "${GREEN}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
@@ -930,6 +931,30 @@ pm2_update() {
     read -n 1
 }
 
+# Function to kill PM2 daemon
+pm2_kill() {
+    clear
+    echo -e "${BOLD_GREEN}Kill PM2 Daemon${NC}"
+    echo -e "${YELLOW}Warning: This will stop all running PM2 processes and kill the PM2 daemon.${NC}"
+    echo -e "${YELLOW}Are you sure you want to continue? (y/N): ${NC}"
+    read -r response
+
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        echo -e "${CYAN}Killing PM2 daemon...${NC}"
+        pm2 kill
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}PM2 daemon has been killed successfully.${NC}"
+        else
+            echo -e "${BOLD_RED}Failed to kill PM2 daemon.${NC}"
+        fi
+    else
+        echo -e "${CYAN}Operation cancelled.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
 # Handle Setup Server menu options
 setup_server_menu() {
     local choice
@@ -1010,6 +1035,7 @@ pm2_management_menu() {
             9) pm2_setup_startup ;;
             10) pm2_save_process_list ;;
             11) pm2_update ;;
+            12) pm2_kill ;;
             0) break ;;
             *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
