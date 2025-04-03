@@ -23,7 +23,7 @@ show_main_menu() {
     echo -e "${GREEN}5. Git Operations${NC}"
     echo -e "${GREEN}6. Video Download${NC}"
     echo -e "${GREEN}7. Quick Install Common Tools${NC}"
-    echo -e "${GREEN}0. Exit${NC}"
+    echo -e "${YELLOW}0. Exit${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -38,7 +38,72 @@ show_system_management_menu() {
     echo -e "${GREEN}2. Port Management${NC}"
     echo -e "${GREEN}3. UFW Firewall${NC}"
     echo -e "${GREEN}4. System Monitor${NC}"
-    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${YELLOW}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Function to display Software Installation submenu
+show_software_installation_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}      SOFTWARE INSTALLATION            ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Install Git${NC}"
+    echo -e "${GREEN}2. Install ZSH${NC}"
+    echo -e "${GREEN}3. Install Oh-My-ZSH${NC}"
+    echo -e "${GREEN}4. Install NVM${NC}"
+    echo -e "${GREEN}5. Install Node.js${NC}"
+    echo -e "${GREEN}6. Install PM2${NC}"
+    echo -e "${GREEN}7. Install Nginx${NC}"
+    echo -e "${YELLOW}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Function to display Operations Management submenu
+show_ops_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}      OPERATIONS MANAGEMENT            ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. PM2 Management${NC}"
+    echo -e "${GREEN}2. Nginx Management${NC}"
+    echo -e "${YELLOW}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Function to display File Transfer submenu
+show_file_transfer_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}          FILE TRANSFER               ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. SSH Connection${NC}"
+    echo -e "${GREEN}2. SCP Transfer${NC}"
+    echo -e "${GREEN}3. Rsync Tools${NC}"
+    echo -e "${YELLOW}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Function to display UFW Management submenu
+show_ufw_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}          UFW MANAGEMENT              ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Install UFW${NC}"
+    echo -e "${GREEN}2. Enable UFW${NC}"
+    echo -e "${GREEN}3. Disable UFW${NC}"
+    echo -e "${GREEN}4. Show UFW Status${NC}"
+    echo -e "${GREEN}5. Allow Port${NC}"
+    echo -e "${GREEN}6. Deny Port${NC}"
+    echo -e "${GREEN}7. Delete Rule${NC}"
+    echo -e "${GREEN}8. Reset UFW Rules${NC}"
+    echo -e "${GREEN}9. Show UFW Rules Numbered${NC}"
+    echo -e "${YELLOW}0. Back${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -58,23 +123,9 @@ show_software_installation_menu() {
     echo -e "${GREEN}7. Install PM2${NC}"
     echo -e "${GREEN}8. Install Nginx${NC}"
     echo -e "${GREEN}9. Install YT-DLP${NC}"
-    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
-}
-
-# Function to display File Transfer submenu
-show_file_transfer_menu() {
-    clear
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${BOLD_GREEN}          FILE TRANSFER               ${NC}"
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}1. SSH Connection${NC}"
-    echo -e "${GREEN}2. SCP Transfer${NC}"
-    echo -e "${GREEN}3. Rsync Tools${NC}"
-    echo -e "${GREEN}0. Back to main menu${NC}"
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}Please enter your choice: ${NC}"
 }
 
 # System Management menu handler
@@ -138,31 +189,6 @@ file_transfer_menu() {
     done
 }
 
-
-
-
-
-# Function to display UFW Management submenu
-show_ufw_menu() {
-    clear
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${BOLD_GREEN}          UFW MANAGEMENT              ${NC}"
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}1. Install UFW${NC}"
-    echo -e "${GREEN}2. Enable UFW${NC}"
-    echo -e "${GREEN}3. Disable UFW${NC}"
-    echo -e "${GREEN}4. Show UFW Status${NC}"
-    echo -e "${GREEN}5. Allow Port${NC}"
-    echo -e "${GREEN}6. Deny Port${NC}"
-    echo -e "${GREEN}7. Delete Rule${NC}"
-    echo -e "${GREEN}8. Reset UFW Rules${NC}"
-    echo -e "${GREEN}9. Show UFW Rules Numbered${NC}"
-    echo -e "${GREEN}0. Back${NC}"
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}Please enter your choice: ${NC}"
-}
-
-
 # Function to display PM2 Management submenu
 show_pm2_menu() {
     clear
@@ -181,9 +207,9 @@ show_pm2_menu() {
     echo -e "${GREEN}10. Save Current Process List${NC}"
     echo -e "${GREEN}11. Update PM2${NC}"
     echo -e "${GREEN}12. Kill PM2 Daemon${NC}"
-    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}Please enter your choice: ${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
 }
 
 # Function to display YT-DLP submenu
@@ -195,9 +221,9 @@ show_ytdlp_menu() {
     echo -e "${GREEN}1. Install/Update YT-DLP${NC}"
     echo -e "${GREEN}2. Download Single Video${NC}"
     echo -e "${GREEN}3. Download Playlist${NC}"
-    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}Please enter your choice: ${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
 }
 
 # Function to display Rsync submenu
@@ -210,9 +236,9 @@ show_rsync_menu() {
     echo -e "${GREEN}2. Sync Remote -> Local${NC}"
     echo -e "${GREEN}3. Sync Local Directory${NC}"
     echo -e "${GREEN}4. Backup with Timestamp${NC}"
-    echo -e "${GREEN}0. Back${NC}"
+    echo -e "${YELLOW}0. Back${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}Please enter your choice: ${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
 }
 
 # Function to display SCP submenu
@@ -226,9 +252,9 @@ show_scp_menu() {
     echo -e "${GREEN}3. Copy Directory: Local -> Remote${NC}"
     echo -e "${GREEN}4. Copy Directory: Remote -> Local${NC}"
     echo -e "${GREEN}5. Copy Multiple Files${NC}"
-    echo -e "${GREEN}0. Back${NC}"
+    echo -e "${YELLOW}0. Back${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}Please enter your choice: ${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
 }
 
 # Function to display Delete User submenu
@@ -241,9 +267,9 @@ show_delete_user_menu() {
     echo -e "${GREEN}2. Delete user and home directory${NC}"
     echo -e "${GREEN}3. Delete user and all files${NC}"
     echo -e "${GREEN}4. List all users${NC}"
-    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}Please enter your choice: ${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
 }
 
 # Function to handle SCP operations
@@ -1258,7 +1284,7 @@ pm2_show_logs() {
     echo -e "${GREEN}1. Show all logs${NC}"
     echo -e "${GREEN}2. Show specific application logs${NC}"
     echo -e "${GREEN}3. Show last N lines${NC}"
-    echo -e "${GREEN}0. Back${NC}"
+    echo -e "${YELLOW}0. Back${NC}"
     read -r choice
 
     case $choice in
@@ -1927,7 +1953,7 @@ show_nginx_menu() {
     echo -e "${GREEN}11. Enable Site${NC}"
     echo -e "${GREEN}12. Disable Site${NC}"
     echo -e "${GREEN}13. SSL Management${NC}"
-    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
 }
@@ -1944,7 +1970,7 @@ show_ssl_menu() {
     echo -e "${GREEN}4. Setup Auto-renewal${NC}"
     echo -e "${GREEN}5. Force HTTPS Redirect${NC}"
     echo -e "${GREEN}6. Show SSL Certificates${NC}"
-    echo -e "${GREEN}0. Back${NC}"
+    echo -e "${YELLOW}0. Back${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
 }
@@ -2705,7 +2731,7 @@ show_ops_menu() {
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}1. PM2 Management${NC}"
     echo -e "${GREEN}2. Nginx Management${NC}"
-    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -2740,7 +2766,7 @@ show_pm2_management_menu() {
     echo -e "${GREEN}5. Monitor Applications${NC}"
     echo -e "${GREEN}6. Show Logs${NC}"
     echo -e "${GREEN}7. Startup Setup${NC}"
-    echo -e "${GREEN}0. Back to Operations menu${NC}"
+    echo -e "${YELLOW}0. Back to Operations menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -2785,7 +2811,7 @@ show_nginx_management_menu() {
     echo -e "${GREEN}7. Edit Configuration${NC}"
     echo -e "${GREEN}8. Show Error Log${NC}"
     echo -e "${GREEN}9. Show Access Log${NC}"
-    echo -e "${GREEN}0. Back to Operations menu${NC}"
+    echo -e "${YELLOW}0. Back to Operations menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -2863,7 +2889,7 @@ show_git_operations_menu() {
     echo -e "${GREEN}4. Git Push${NC}"
     echo -e "${GREEN}5. Git Add All${NC}"
     echo -e "${GREEN}6. Git Commit${NC}"
-    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
