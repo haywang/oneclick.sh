@@ -1839,9 +1839,294 @@ show_nginx_menu() {
     echo -e "${GREEN}10. List Enabled Sites${NC}"
     echo -e "${GREEN}11. Enable Site${NC}"
     echo -e "${GREEN}12. Disable Site${NC}"
+    echo -e "${GREEN}13. SSL Management${NC}"
     echo -e "${GREEN}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
+}
+
+# Function to display SSL Management submenu
+show_ssl_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}         SSL MANAGEMENT               ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Install Certbot${NC}"
+    echo -e "${GREEN}2. Get Let's Encrypt Certificate${NC}"
+    echo -e "${GREEN}3. Install Self-signed Certificate${NC}"
+    echo -e "${GREEN}4. Setup Auto-renewal${NC}"
+    echo -e "${GREEN}5. Force HTTPS Redirect${NC}"
+    echo -e "${GREEN}6. Show SSL Certificates${NC}"
+    echo -e "${GREEN}0. Back${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}Please enter your choice: ${NC}"
+}
+
+# Function to install Certbot
+install_certbot() {
+    clear
+    echo -e "${BOLD_GREEN}Installing Certbot...${NC}"
+
+    # 检测系统类型
+    if command -v apt &> /dev/null; then
+        echo -e "${CYAN}Using apt package manager...${NC}"
+        sudo apt update
+        sudo apt install -y certbot python3-certbot-nginx
+    elif command -v dnf &> /dev/null; then
+        echo -e "${CYAN}Using dnf package manager...${NC}"
+        sudo dnf install -y certbot python3-certbot-nginx
+    elif command -v yum &> /dev/null; then
+        echo -e "${CYAN}Using yum package manager...${NC}"
+        sudo yum install -y epel-release
+        sudo yum install -y certbot python3-certbot-nginx
+    else
+        echo -e "${BOLD_RED}Unsupported package manager. Please install Certbot manually.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${GREEN}Certbot has been installed successfully.${NC}"
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to get Let's Encrypt certificate
+get_letsencrypt_cert() {
+    clear
+    echo -e "${BOLD_GREEN}Get Let's Encrypt Certificate${NC}"
+    echo -e "${CYAN}Enter domain name (e.g., example.com): ${NC}"
+    read domain_name
+
+    if [ -z "$domain_name" ]; then
+        echo -e "${BOLD_RED}Domain name cannot be empty.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${CYAN}Choose certificate type:${NC}"
+    echo -e "${GREEN}1. Single domain${NC}"
+    echo -e "${GREEN}2. Multiple domains (including www)${NC}"
+    echo -e "${GREEN}3. Wildcard certificate${NC}"
+    read -r cert_type
+
+    case $cert_type in
+        1)
+            echo -e "${CYAN}Getting certificate for $domain_name...${NC}"
+            sudo certbot --nginx -d "$domain_name"
+            ;;
+        2)
+            echo -e "${CYAN}Getting certificate for $domain_name and www.$domain_name...${NC}"
+            sudo certbot --nginx -d "$domain_name" -d "www.$domain_name"
+            ;;
+        3)
+            echo -e "${CYAN}Getting wildcard certificate for *.$domain_name...${NC}"
+            echo -e "${YELLOW}Note: DNS verification required for wildcard certificates${NC}"
+            sudo certbot certonly --manual --preferred-challenges dns -d "*.$domain_name" -d "$domain_name"
+            ;;
+        *)
+            echo -e "${BOLD_RED}Invalid option.${NC}"
+            ;;
+    esac
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to install self-signed certificate
+install_self_signed_cert() {
+    clear
+    echo -e "${BOLD_GREEN}Install Self-signed Certificate${NC}"
+    echo -e "${CYAN}Enter domain name (e.g., example.com): ${NC}"
+    read domain_name
+
+    if [ -z "$domain_name" ]; then
+        echo -e "${BOLD_RED}Domain name cannot be empty.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    # 创建证书目录
+    sudo mkdir -p /etc/nginx/ssl/$domain_name
+
+    # 生成自签名证书
+    echo -e "${CYAN}Generating self-signed certificate...${NC}"
+    sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -keyout /etc/nginx/ssl/$domain_name/private.key \
+        -out /etc/nginx/ssl/$domain_name/certificate.crt \
+        -subj "/CN=$domain_name"
+
+    # 创建 Nginx 配置
+    echo -e "${CYAN}Creating Nginx SSL configuration...${NC}"
+    cat > "/tmp/$domain_name.conf" << EOF
+server {
+    listen 443 ssl;
+    server_name $domain_name;
+
+    ssl_certificate /etc/nginx/ssl/$domain_name/certificate.crt;
+    ssl_certificate_key /etc/nginx/ssl/$domain_name/private.key;
+
+    # SSL 配置
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+
+    # HSTS (可选)
+    # add_header Strict-Transport-Security "max-age=63072000" always;
+
+    location / {
+        proxy_pass http://localhost:80;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EOF
+
+    sudo mv "/tmp/$domain_name.conf" "/etc/nginx/sites-available/$domain_name-ssl"
+    sudo ln -sf "/etc/nginx/sites-available/$domain_name-ssl" "/etc/nginx/sites-enabled/"
+
+    # 测试配置并重新加载
+    if sudo nginx -t; then
+        sudo systemctl reload nginx
+        echo -e "${GREEN}Self-signed certificate installed and configured successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Nginx configuration test failed.${NC}"
+        sudo rm -f "/etc/nginx/sites-enabled/$domain_name-ssl"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to setup auto-renewal
+setup_auto_renewal() {
+    clear
+    echo -e "${BOLD_GREEN}Setting up Auto-renewal${NC}"
+
+    # 检查 certbot 是否安装
+    if ! command -v certbot &> /dev/null; then
+        echo -e "${BOLD_RED}Certbot is not installed. Please install it first.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    # 创建自动续期脚本
+    echo -e "${CYAN}Creating renewal script...${NC}"
+    sudo tee /etc/cron.daily/certbot-renew << 'EOF'
+#!/bin/bash
+certbot renew --quiet --no-self-upgrade
+systemctl reload nginx
+EOF
+
+    # 设置执行权限
+    sudo chmod +x /etc/cron.daily/certbot-renew
+
+    # 测试续期
+    echo -e "${CYAN}Testing certificate renewal...${NC}"
+    sudo certbot renew --dry-run
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}Auto-renewal setup completed successfully.${NC}"
+        echo -e "${CYAN}Certificates will be renewed automatically when they are close to expiry.${NC}"
+    else
+        echo -e "${BOLD_RED}Auto-renewal setup failed.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to force HTTPS redirect
+force_https_redirect() {
+    clear
+    echo -e "${BOLD_GREEN}Force HTTPS Redirect${NC}"
+    echo -e "${CYAN}Enter domain name: ${NC}"
+    read domain_name
+
+    if [ -z "$domain_name" ]; then
+        echo -e "${BOLD_RED}Domain name cannot be empty.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    # 创建 HTTP 到 HTTPS 的重定向配置
+    echo -e "${CYAN}Creating HTTPS redirect configuration...${NC}"
+    cat > "/tmp/$domain_name-redirect.conf" << EOF
+server {
+    listen 80;
+    server_name $domain_name www.$domain_name;
+    return 301 https://\$server_name\$request_uri;
+}
+EOF
+
+    sudo mv "/tmp/$domain_name-redirect.conf" "/etc/nginx/sites-available/$domain_name-redirect"
+    sudo ln -sf "/etc/nginx/sites-available/$domain_name-redirect" "/etc/nginx/sites-enabled/"
+
+    # 测试配置并重新加载
+    if sudo nginx -t; then
+        sudo systemctl reload nginx
+        echo -e "${GREEN}HTTPS redirect configured successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Nginx configuration test failed.${NC}"
+        sudo rm -f "/etc/nginx/sites-enabled/$domain_name-redirect"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to show SSL certificates
+show_ssl_certificates() {
+    clear
+    echo -e "${BOLD_GREEN}SSL Certificates${NC}"
+
+    # 显示 Let's Encrypt 证书
+    if command -v certbot &> /dev/null; then
+        echo -e "${CYAN}Let's Encrypt Certificates:${NC}"
+        echo "================================="
+        sudo certbot certificates
+        echo "================================="
+    fi
+
+    # 显示自签名证书
+    echo -e "\n${CYAN}Self-signed Certificates:${NC}"
+    echo "================================="
+    if [ -d "/etc/nginx/ssl" ]; then
+        ls -l /etc/nginx/ssl/
+    else
+        echo "No self-signed certificates found."
+    fi
+    echo "================================="
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to handle SSL Management menu
+ssl_management_menu() {
+    local choice
+
+    while true; do
+        show_ssl_menu
+        read choice
+
+        case $choice in
+            1) install_certbot ;;
+            2) get_letsencrypt_cert ;;
+            3) install_self_signed_cert ;;
+            4) setup_auto_renewal ;;
+            5) force_https_redirect ;;
+            6) show_ssl_certificates ;;
+            0) break ;;
+            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
+        esac
+    done
 }
 
 # Nginx management functions
@@ -2059,6 +2344,7 @@ nginx_management_menu() {
             10) nginx_list_enabled_sites ;;
             11) nginx_enable_site ;;
             12) nginx_disable_site ;;
+            13) ssl_management_menu ;;
             0) break ;;
             *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
