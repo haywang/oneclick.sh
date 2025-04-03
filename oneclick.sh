@@ -24,7 +24,117 @@ show_main_menu() {
     echo -e "${GREEN}6. Video Download${NC}"
     echo -e "${GREEN}0. Exit${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Function to display System Management submenu
+show_system_management_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}         SYSTEM MANAGEMENT             ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. User Management${NC}"
+    echo -e "${GREEN}2. Port Management${NC}"
+    echo -e "${GREEN}3. UFW Firewall${NC}"
+    echo -e "${GREEN}4. System Monitor${NC}"
+    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Function to display Software Installation submenu
+show_software_installation_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}      SOFTWARE INSTALLATION            ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Install Git${NC}"
+    echo -e "${GREEN}2. Install Homebrew${NC}"
+    echo -e "${GREEN}3. Install ZSH${NC}"
+    echo -e "${GREEN}4. Install Oh-My-ZSH${NC}"
+    echo -e "${GREEN}5. Install NVM${NC}"
+    echo -e "${GREEN}6. Install Node.js${NC}"
+    echo -e "${GREEN}7. Install PM2${NC}"
+    echo -e "${GREEN}8. Install Nginx${NC}"
+    echo -e "${GREEN}9. Install YT-DLP${NC}"
+    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Function to display File Transfer submenu
+show_file_transfer_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}          FILE TRANSFER               ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. SSH Connection${NC}"
+    echo -e "${GREEN}2. SCP Transfer${NC}"
+    echo -e "${GREEN}3. Rsync Tools${NC}"
+    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
+}
+
+# System Management menu handler
+system_management_menu() {
+    local choice
+
+    while true; do
+        show_system_management_menu
+        read choice
+
+        case $choice in
+            1) delete_user_menu ;;  # 用户管理子菜单
+            2) check_port_usage ;;  # 端口管理
+            3) ufw_management_menu ;;  # UFW防火墙管理
+            4) top_command ;;  # 系统监控
+            0) break ;;
+            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
+        esac
+    done
+}
+
+# Software Installation menu handler
+software_installation_menu() {
+    local choice
+
+    while true; do
+        show_software_installation_menu
+        read choice
+
+        case $choice in
+            1) install_git ;;
+            2) install_homebrew ;;
+            3) install_zsh ;;
+            4) install_oh_my_zsh ;;
+            5) install_nvm ;;
+            6) install_node ;;
+            7) install_pm2 ;;
+            8) install_nginx ;;
+            9) install_ytdlp ;;
+            0) break ;;
+            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
+        esac
+    done
+}
+
+# File Transfer menu handler
+file_transfer_menu() {
+    local choice
+
+    while true; do
+        show_file_transfer_menu
+        read choice
+
+        case $choice in
+            1) ssh_tool ;;
+            2) scp_tools ;;
+            3) rsync_tools ;;
+            0) break ;;
+            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
+        esac
+    done
 }
 
 # Function to display Setup Server submenu
@@ -2772,6 +2882,46 @@ ops_management_menu() {
     done
 }
 
+# Function to display Git Operations submenu
+show_git_operations_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}         GIT OPERATIONS               ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Remove Cached Directory${NC}"
+    echo -e "${GREEN}2. Git Status${NC}"
+    echo -e "${GREEN}3. Git Pull${NC}"
+    echo -e "${GREEN}4. Git Push${NC}"
+    echo -e "${GREEN}5. Git Add All${NC}"
+    echo -e "${GREEN}6. Git Commit${NC}"
+    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Git Operations menu handler
+git_operations_menu() {
+    local choice
+
+    while true; do
+        show_git_operations_menu
+        read choice
+
+        case $choice in
+            1) git_rm_cached_directory ;;
+            2) git status ;;
+            3) git pull ;;
+            4) git push ;;
+            5) git add . ;;
+            6) read -p "Enter commit message: " message
+               git commit -m "$message" ;;
+            0) break ;;
+            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
+        esac
+    done
+}
+
+# Main function
 # Main function
 main() {
     local choice
