@@ -20,6 +20,7 @@ show_main_menu() {
     echo -e "${GREEN}2. Tools${NC}"
     echo -e "${GREEN}3. Diagnose${NC}"
     echo -e "${GREEN}4. PM2 Management${NC}"
+    echo -e "${GREEN}5. YT-DLP Video Download${NC}"
     echo -e "${GREEN}0. Exit${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
@@ -91,6 +92,20 @@ show_pm2_menu() {
     echo -e "${GREEN}10. Save Current Process List${NC}"
     echo -e "${GREEN}11. Update PM2${NC}"
     echo -e "${GREEN}12. Kill PM2 Daemon${NC}"
+    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}Please enter your choice: ${NC}"
+}
+
+# Function to display YT-DLP submenu
+show_ytdlp_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}         YT-DLP VIDEO DOWNLOAD         ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Install/Update YT-DLP${NC}"
+    echo -e "${GREEN}2. Download Single Video${NC}"
+    echo -e "${GREEN}3. Download Playlist${NC}"
     echo -e "${GREEN}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
@@ -706,7 +721,7 @@ git_rm_cached_directory() {
         echo -e "${CYAN}Press any key to continue...${NC}"
         read -n 1
         return 1
-    }
+    fi
 
     echo -e "${CYAN}Enter directory name to remove from git cache: ${NC}"
     read dir_name
@@ -725,7 +740,7 @@ git_rm_cached_directory() {
         echo -e "${CYAN}Press any key to continue...${NC}"
         read -n 1
         return 1
-    }
+    fi
 
     echo -e "${YELLOW}Are you sure you want to remove '$dir_name' from git cache? (y/N): ${NC}"
     read -r response
@@ -955,6 +970,168 @@ pm2_kill() {
     read -n 1
 }
 
+# Function to install or update yt-dlp
+install_ytdlp() {
+    clear
+    echo -e "${BOLD_GREEN}Installing/Updating YT-DLP...${NC}"
+
+    # Check if Homebrew is available (for macOS)
+    if command -v brew &> /dev/null; then
+        echo -e "${CYAN}Installing/Updating YT-DLP using Homebrew...${NC}"
+        brew install yt-dlp || brew upgrade yt-dlp
+    else
+        # For other systems, try using pip
+        if command -v pip3 &> /dev/null; then
+            echo -e "${CYAN}Installing/Updating YT-DLP using pip3...${NC}"
+            pip3 install -U yt-dlp
+        elif command -v pip &> /dev/null; then
+            echo -e "${CYAN}Installing/Updating YT-DLP using pip...${NC}"
+            pip install -U yt-dlp
+        else
+            echo -e "${BOLD_RED}Neither Homebrew nor pip is available. Please install pip first.${NC}"
+            echo -e "${CYAN}Press any key to continue...${NC}"
+            read -n 1
+            return 1
+        fi
+    fi
+
+    # Verify installation
+    if command -v yt-dlp &> /dev/null; then
+        echo -e "${GREEN}YT-DLP installed/updated successfully.${NC}"
+        echo -e "${CYAN}Current version: $(yt-dlp --version)${NC}"
+    else
+        echo -e "${BOLD_RED}Failed to install/update YT-DLP.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to download single video
+download_single_video() {
+    clear
+    echo -e "${BOLD_GREEN}Download Single Video${NC}"
+    echo -e "${CYAN}Enter video URL: ${NC}"
+    read video_url
+
+    if [ -z "$video_url" ]; then
+        echo -e "${BOLD_RED}URL cannot be empty.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${CYAN}Choose video quality:${NC}"
+    echo -e "${GREEN}1. Best quality MP4 (video + audio)${NC}"
+    echo -e "${GREEN}2. 1080p MP4${NC}"
+    echo -e "${GREEN}3. 720p MP4${NC}"
+    echo -e "${GREEN}4. Audio only (MP3)${NC}"
+    read -r quality_choice
+
+    # 通用参数：合并后转换为mp4，显示格式列表
+    local common_opts="--merge-output-format mp4 --list-formats"
+
+    case $quality_choice in
+        1)
+            echo -e "${CYAN}Available formats:${NC}"
+            yt-dlp $common_opts "$video_url"
+            echo -e "${CYAN}Downloading best MP4 quality...${NC}"
+            yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" "$video_url"
+            ;;
+        2)
+            echo -e "${CYAN}Available formats:${NC}"
+            yt-dlp $common_opts "$video_url"
+            echo -e "${CYAN}Downloading 1080p MP4...${NC}"
+            yt-dlp -f "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080][ext=mp4]/best[height<=1080]" "$video_url"
+            ;;
+        3)
+            echo -e "${CYAN}Available formats:${NC}"
+            yt-dlp $common_opts "$video_url"
+            echo -e "${CYAN}Downloading 720p MP4...${NC}"
+            yt-dlp -f "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]/best[height<=720]" "$video_url"
+            ;;
+        4)
+            echo -e "${CYAN}Downloading audio only...${NC}"
+            yt-dlp -f "bestaudio" -x --audio-format mp3 "$video_url"
+            ;;
+        *)
+            echo -e "${BOLD_RED}Invalid choice. Using best MP4 quality...${NC}"
+            yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" "$video_url"
+            ;;
+    esac
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}Download completed successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Download failed. Please check the URL and try again.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to download playlist
+download_playlist() {
+    clear
+    echo -e "${BOLD_GREEN}Download Playlist${NC}"
+    echo -e "${CYAN}Enter playlist URL: ${NC}"
+    read playlist_url
+
+    if [ -z "$playlist_url" ]; then
+        echo -e "${BOLD_RED}URL cannot be empty.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${CYAN}Choose download options:${NC}"
+    echo -e "${GREEN}1. Download entire playlist${NC}"
+    echo -e "${GREEN}2. Download from specific video${NC}"
+    echo -e "${GREEN}3. Download specific range${NC}"
+    read -r playlist_choice
+
+    # 通用参数：合并后转换为mp4
+    local format_opts="-f bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best --merge-output-format mp4"
+
+    case $playlist_choice in
+        1)
+            echo -e "${CYAN}Downloading entire playlist in MP4 format...${NC}"
+            yt-dlp $format_opts "$playlist_url"
+            ;;
+        2)
+            echo -e "${CYAN}Enter start video number: ${NC}"
+            read start_number
+            if [ -n "$start_number" ]; then
+                echo -e "${CYAN}Downloading playlist from video $start_number in MP4 format...${NC}"
+                yt-dlp $format_opts --playlist-start $start_number "$playlist_url"
+            fi
+            ;;
+        3)
+            echo -e "${CYAN}Enter start video number: ${NC}"
+            read start_number
+            echo -e "${CYAN}Enter end video number: ${NC}"
+            read end_number
+            if [ -n "$start_number" ] && [ -n "$end_number" ]; then
+                echo -e "${CYAN}Downloading playlist from video $start_number to $end_number in MP4 format...${NC}"
+                yt-dlp $format_opts --playlist-start $start_number --playlist-end $end_number "$playlist_url"
+            fi
+            ;;
+        *)
+            echo -e "${BOLD_RED}Invalid choice. Downloading entire playlist in MP4 format...${NC}"
+            yt-dlp $format_opts "$playlist_url"
+            ;;
+    esac
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}Playlist download completed successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Download failed. Please check the URL and try again.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
 # Handle Setup Server menu options
 setup_server_menu() {
     local choice
@@ -1042,6 +1219,24 @@ pm2_management_menu() {
     done
 }
 
+# Handle YT-DLP menu options
+ytdlp_menu() {
+    local choice
+
+    while true; do
+        show_ytdlp_menu
+        read choice
+
+        case $choice in
+            1) install_ytdlp ;;
+            2) download_single_video ;;
+            3) download_playlist ;;
+            0) break ;;
+            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
+        esac
+    done
+}
+
 # Main function
 main() {
     local choice
@@ -1055,6 +1250,7 @@ main() {
             2) tools_menu ;;
             3) diagnose_menu ;;
             4) pm2_management_menu ;;
+            5) ytdlp_menu ;;
             0) clear ; exit 0 ;;
             *) echo -e "${GREEN}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
