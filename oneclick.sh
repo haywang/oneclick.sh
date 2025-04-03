@@ -53,6 +53,7 @@ show_tools_menu() {
     echo -e "${GREEN}2. Look port use${NC}"
     echo -e "${GREEN}3. SCP local to server${NC}"
     echo -e "${GREEN}4. SCP server to local${NC}"
+    echo -e "${GREEN}5. Install Homebrew${NC}"
     echo -e "${GREEN}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
@@ -555,6 +556,120 @@ top_command() {
     top
 }
 
+# Function to install Homebrew
+install_homebrew() {
+    clear
+    echo -e "${BOLD_GREEN}Installing Homebrew...${NC}"
+
+    # Check if running on macOS
+    if [[ "$OSTYPE" != "darwin"* ]]; then
+        echo -e "${BOLD_RED}This system is not macOS. Homebrew installation is primarily for macOS.${NC}"
+        echo -e "${YELLOW}If you're on Linux, you can still install Homebrew, but it's not recommended.${NC}"
+        echo -e "${CYAN}Do you want to continue anyway? (y/N): ${NC}"
+        read -r response
+        if [[ ! "$response" =~ ^[Yy]$ ]]; then
+            echo -e "${CYAN}Installation cancelled.${NC}"
+            echo -e "${CYAN}Press any key to continue...${NC}"
+            read -n 1
+            return
+        fi
+    fi
+
+    # Function to fix Homebrew permissions
+    fix_homebrew_permissions() {
+        local homebrew_path="$1"
+        echo -e "${YELLOW}Fixing Homebrew permissions...${NC}"
+        if [ -d "$homebrew_path" ]; then
+            echo -e "${CYAN}Changing ownership of $homebrew_path to $USER...${NC}"
+            sudo chown -R "$USER" "$homebrew_path"
+            if [ $? -eq 0 ]; then
+                echo -e "${GREEN}Permissions fixed successfully.${NC}"
+                return 0
+            else
+                echo -e "${BOLD_RED}Failed to fix permissions.${NC}"
+                return 1
+            fi
+        else
+            echo -e "${BOLD_RED}Homebrew path $homebrew_path does not exist.${NC}"
+            return 1
+        fi
+    }
+
+    # Check if Homebrew is already installed
+    if command -v brew &> /dev/null; then
+        echo -e "${CYAN}Homebrew is already installed.${NC}"
+        echo -e "${CYAN}Current version: $(brew --version)${NC}"
+
+        # Check Homebrew path and permissions
+        local homebrew_path
+        if [[ "$(uname -m)" == "arm64" ]]; then
+            homebrew_path="/opt/homebrew"
+        else
+            homebrew_path="/usr/local"
+        fi
+
+        # Check if user has write permissions
+        if ! [ -w "$homebrew_path" ]; then
+            echo -e "${YELLOW}Warning: $homebrew_path is not writable.${NC}"
+            echo -e "${CYAN}Do you want to fix permissions? (Y/n): ${NC}"
+            read -r response
+            if [[ "$response" =~ ^[Yy]$ ]] || [[ -z "$response" ]]; then
+                fix_homebrew_permissions "$homebrew_path"
+            fi
+        fi
+
+        echo -e "${YELLOW}Do you want to update Homebrew? (y/N): ${NC}"
+        read -r response
+        if [[ "$response" =~ ^[Yy]$ ]]; then
+            echo -e "${CYAN}Updating Homebrew...${NC}"
+            if brew update; then
+                echo -e "${GREEN}Homebrew has been updated successfully.${NC}"
+            else
+                echo -e "${BOLD_RED}Failed to update Homebrew. Checking permissions...${NC}"
+                fix_homebrew_permissions "$homebrew_path"
+                echo -e "${CYAN}Trying update again...${NC}"
+                if brew update; then
+                    echo -e "${GREEN}Homebrew has been updated successfully after fixing permissions.${NC}"
+                else
+                    echo -e "${BOLD_RED}Update failed. Please check the error messages above.${NC}"
+                fi
+            fi
+        fi
+    else
+        # Check for required tools
+        if ! command -v curl &> /dev/null; then
+            echo -e "${BOLD_RED}curl is required but not installed.${NC}"
+            echo -e "${CYAN}Press any key to continue...${NC}"
+            read -n 1
+            return 1
+        fi
+
+        echo -e "${CYAN}Installing Homebrew...${NC}"
+        # Install Homebrew
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+        # Check if installation was successful
+        if command -v brew &> /dev/null; then
+            echo -e "${GREEN}Homebrew has been installed successfully!${NC}"
+
+            # Add Homebrew to PATH for Apple Silicon Macs
+            if [[ "$(uname -m)" == "arm64" ]]; then
+                echo -e "${CYAN}Setting up Homebrew for Apple Silicon Mac...${NC}"
+                echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
+                eval "$(/opt/homebrew/bin/brew shellenv)"
+            fi
+
+            # Display Homebrew version
+            echo -e "${CYAN}Installed version: $(brew --version)${NC}"
+        else
+            echo -e "${BOLD_RED}Failed to install Homebrew. Please check the error messages above.${NC}"
+        fi
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
 # Handle Setup Server menu options
 setup_server_menu() {
     local choice
@@ -591,8 +706,9 @@ tools_menu() {
             2) check_port_usage ;;
             3) scp_local_to_server ;;
             4) scp_server_to_local ;;
+            5) install_homebrew ;;
             0) break ;;
-            *) echo -e "${GREEN}Invalid option. Please try again.${NC}" ; sleep 2 ;;
+            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
     done
 }
