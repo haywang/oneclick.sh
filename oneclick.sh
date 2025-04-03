@@ -54,6 +54,7 @@ show_tools_menu() {
     echo -e "${GREEN}3. SCP local to server${NC}"
     echo -e "${GREEN}4. SCP server to local${NC}"
     echo -e "${GREEN}5. Install Homebrew${NC}"
+    echo -e "${GREEN}6. Git Remove Cached Directory${NC}"
     echo -e "${GREEN}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
@@ -670,6 +671,55 @@ install_homebrew() {
     read -n 1
 }
 
+# Function to remove cached directory from git
+git_rm_cached_directory() {
+    clear
+    echo -e "${BOLD_GREEN}Git Remove Cached Directory${NC}"
+
+    # Check if current directory is a git repository
+    if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+        echo -e "${BOLD_RED}Error: Current directory is not a git repository.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    }
+
+    echo -e "${CYAN}Enter directory name to remove from git cache: ${NC}"
+    read dir_name
+
+    # Check if directory name is provided
+    if [ -z "$dir_name" ]; then
+        echo -e "${BOLD_RED}Directory name cannot be empty. Please try again.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    # Check if directory exists
+    if [ ! -d "$dir_name" ]; then
+        echo -e "${BOLD_RED}Directory '$dir_name' does not exist.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    }
+
+    echo -e "${YELLOW}Are you sure you want to remove '$dir_name' from git cache? (y/N): ${NC}"
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        if git rm -r --cached "$dir_name"; then
+            echo -e "${GREEN}Successfully removed '$dir_name' from git cache.${NC}"
+            echo -e "${YELLOW}Remember to commit this change and push to remote repository.${NC}"
+        else
+            echo -e "${BOLD_RED}Failed to remove directory from git cache.${NC}"
+        fi
+    else
+        echo -e "${CYAN}Operation cancelled.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
 # Handle Setup Server menu options
 setup_server_menu() {
     local choice
@@ -707,6 +757,7 @@ tools_menu() {
             3) scp_local_to_server ;;
             4) scp_server_to_local ;;
             5) install_homebrew ;;
+            6) git_rm_cached_directory ;;
             0) break ;;
             *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
