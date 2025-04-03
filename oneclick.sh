@@ -22,6 +22,7 @@ show_main_menu() {
     echo -e "${GREEN}4. PM2 Management${NC}"
     echo -e "${GREEN}5. YT-DLP Video Download${NC}"
     echo -e "${GREEN}6. Delete User Account${NC}"
+    echo -e "${GREEN}7. Nginx Management${NC}"
     echo -e "${GREEN}0. Exit${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
@@ -1820,6 +1821,250 @@ list_all_users() {
     read -n 1
 }
 
+# Function to display Nginx Management submenu
+show_nginx_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}         NGINX MANAGEMENT              ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Start Nginx${NC}"
+    echo -e "${GREEN}2. Stop Nginx${NC}"
+    echo -e "${GREEN}3. Restart Nginx${NC}"
+    echo -e "${GREEN}4. Reload Configuration${NC}"
+    echo -e "${GREEN}5. Test Configuration${NC}"
+    echo -e "${GREEN}6. Show Status${NC}"
+    echo -e "${GREEN}7. Show Error Log${NC}"
+    echo -e "${GREEN}8. Show Access Log${NC}"
+    echo -e "${GREEN}9. Edit Configuration${NC}"
+    echo -e "${GREEN}10. List Enabled Sites${NC}"
+    echo -e "${GREEN}11. Enable Site${NC}"
+    echo -e "${GREEN}12. Disable Site${NC}"
+    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}Please enter your choice: ${NC}"
+}
+
+# Nginx management functions
+nginx_start() {
+    clear
+    echo -e "${BOLD_GREEN}Starting Nginx...${NC}"
+    if sudo systemctl start nginx; then
+        echo -e "${GREEN}Nginx started successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Failed to start Nginx. Check the error log for details.${NC}"
+    fi
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+nginx_stop() {
+    clear
+    echo -e "${BOLD_GREEN}Stopping Nginx...${NC}"
+    if sudo systemctl stop nginx; then
+        echo -e "${GREEN}Nginx stopped successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Failed to stop Nginx. Check the error log for details.${NC}"
+    fi
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+nginx_restart() {
+    clear
+    echo -e "${BOLD_GREEN}Restarting Nginx...${NC}"
+    if sudo systemctl restart nginx; then
+        echo -e "${GREEN}Nginx restarted successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Failed to restart Nginx. Check the error log for details.${NC}"
+    fi
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+nginx_reload() {
+    clear
+    echo -e "${BOLD_GREEN}Reloading Nginx Configuration...${NC}"
+    if sudo systemctl reload nginx; then
+        echo -e "${GREEN}Nginx configuration reloaded successfully.${NC}"
+    else
+        echo -e "${BOLD_RED}Failed to reload Nginx configuration. Check the error log for details.${NC}"
+    fi
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+nginx_test_config() {
+    clear
+    echo -e "${BOLD_GREEN}Testing Nginx Configuration...${NC}"
+    if sudo nginx -t; then
+        echo -e "${GREEN}Nginx configuration test passed.${NC}"
+    else
+        echo -e "${BOLD_RED}Nginx configuration test failed.${NC}"
+    fi
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+nginx_status() {
+    clear
+    echo -e "${BOLD_GREEN}Nginx Status${NC}"
+    sudo systemctl status nginx | cat
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+nginx_error_log() {
+    clear
+    echo -e "${BOLD_GREEN}Nginx Error Log${NC}"
+    echo -e "${CYAN}Number of lines to show (default: 50): ${NC}"
+    read lines
+    lines=${lines:-50}
+
+    if [ -f /var/log/nginx/error.log ]; then
+        sudo tail -n "$lines" /var/log/nginx/error.log
+    else
+        echo -e "${BOLD_RED}Error log file not found.${NC}"
+    fi
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+nginx_access_log() {
+    clear
+    echo -e "${BOLD_GREEN}Nginx Access Log${NC}"
+    echo -e "${CYAN}Number of lines to show (default: 50): ${NC}"
+    read lines
+    lines=${lines:-50}
+
+    if [ -f /var/log/nginx/access.log ]; then
+        sudo tail -n "$lines" /var/log/nginx/access.log
+    else
+        echo -e "${BOLD_RED}Access log file not found.${NC}"
+    fi
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+nginx_edit_config() {
+    clear
+    echo -e "${BOLD_GREEN}Edit Nginx Configuration${NC}"
+    echo -e "${CYAN}Select editor (1. nano, 2. vim): ${NC}"
+    read editor_choice
+
+    local editor
+    case $editor_choice in
+        1) editor="nano" ;;
+        2) editor="vim" ;;
+        *) editor="nano" ;;
+    esac
+
+    if command -v $editor &> /dev/null; then
+        sudo $editor /etc/nginx/nginx.conf
+    else
+        echo -e "${BOLD_RED}Editor $editor not found. Please install it first.${NC}"
+    fi
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+nginx_list_enabled_sites() {
+    clear
+    echo -e "${BOLD_GREEN}Enabled Nginx Sites${NC}"
+    echo -e "${CYAN}Sites in sites-enabled:${NC}"
+    echo "================================="
+    ls -l /etc/nginx/sites-enabled/
+    echo "================================="
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+nginx_enable_site() {
+    clear
+    echo -e "${BOLD_GREEN}Enable Nginx Site${NC}"
+    echo -e "${CYAN}Available sites in sites-available:${NC}"
+    echo "================================="
+    ls -l /etc/nginx/sites-available/
+    echo "================================="
+    echo -e "${CYAN}Enter site name to enable: ${NC}"
+    read site_name
+
+    if [ -z "$site_name" ]; then
+        echo -e "${BOLD_RED}Site name cannot be empty.${NC}"
+    elif [ -f "/etc/nginx/sites-available/$site_name" ]; then
+        if sudo ln -s "/etc/nginx/sites-available/$site_name" "/etc/nginx/sites-enabled/"; then
+            echo -e "${GREEN}Site enabled successfully.${NC}"
+            echo -e "${CYAN}Testing configuration...${NC}"
+            if sudo nginx -t; then
+                echo -e "${GREEN}Configuration test passed. Reloading Nginx...${NC}"
+                sudo systemctl reload nginx
+            else
+                echo -e "${BOLD_RED}Configuration test failed. Removing symbolic link...${NC}"
+                sudo rm "/etc/nginx/sites-enabled/$site_name"
+            fi
+        else
+            echo -e "${BOLD_RED}Failed to enable site.${NC}"
+        fi
+    else
+        echo -e "${BOLD_RED}Site configuration not found.${NC}"
+    fi
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+nginx_disable_site() {
+    clear
+    echo -e "${BOLD_GREEN}Disable Nginx Site${NC}"
+    echo -e "${CYAN}Enabled sites:${NC}"
+    echo "================================="
+    ls -l /etc/nginx/sites-enabled/
+    echo "================================="
+    echo -e "${CYAN}Enter site name to disable: ${NC}"
+    read site_name
+
+    if [ -z "$site_name" ]; then
+        echo -e "${BOLD_RED}Site name cannot be empty.${NC}"
+    elif [ -L "/etc/nginx/sites-enabled/$site_name" ]; then
+        if sudo rm "/etc/nginx/sites-enabled/$site_name"; then
+            echo -e "${GREEN}Site disabled successfully.${NC}"
+            echo -e "${CYAN}Reloading Nginx...${NC}"
+            sudo systemctl reload nginx
+        else
+            echo -e "${BOLD_RED}Failed to disable site.${NC}"
+        fi
+    else
+        echo -e "${BOLD_RED}Site is not enabled.${NC}"
+    fi
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Handle Nginx Management menu options
+nginx_management_menu() {
+    local choice
+
+    while true; do
+        show_nginx_menu
+        read choice
+
+        case $choice in
+            1) nginx_start ;;
+            2) nginx_stop ;;
+            3) nginx_restart ;;
+            4) nginx_reload ;;
+            5) nginx_test_config ;;
+            6) nginx_status ;;
+            7) nginx_error_log ;;
+            8) nginx_access_log ;;
+            9) nginx_edit_config ;;
+            10) nginx_list_enabled_sites ;;
+            11) nginx_enable_site ;;
+            12) nginx_disable_site ;;
+            0) break ;;
+            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
+        esac
+    done
+}
+
 # Handle Setup Server menu options
 setup_server_menu() {
     local choice
@@ -1959,6 +2204,7 @@ main() {
             4) pm2_management_menu ;;
             5) ytdlp_menu ;;
             6) delete_user_menu ;;
+            7) nginx_management_menu ;;
             0) clear ; exit 0 ;;
             *) echo -e "${GREEN}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
