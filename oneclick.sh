@@ -16,13 +16,12 @@ show_main_menu() {
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${BOLD_GREEN}          INTERACTIVE SHELL MENU        ${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}1. Setup Server${NC}"
-    echo -e "${GREEN}2. Tools${NC}"
-    echo -e "${GREEN}3. Diagnose${NC}"
-    echo -e "${GREEN}4. PM2 Management${NC}"
-    echo -e "${GREEN}5. YT-DLP Video Download${NC}"
-    echo -e "${GREEN}6. Delete User Account${NC}"
-    echo -e "${GREEN}7. Nginx Management${NC}"
+    echo -e "${GREEN}1. System Management${NC}"
+    echo -e "${GREEN}2. Software Installation${NC}"
+    echo -e "${GREEN}3. Operations Management${NC}"
+    echo -e "${GREEN}4. File Transfer${NC}"
+    echo -e "${GREEN}5. Git Operations${NC}"
+    echo -e "${GREEN}6. Video Download${NC}"
     echo -e "${GREEN}0. Exit${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
@@ -2756,6 +2755,23 @@ delete_user_menu() {
     done
 }
 
+# Operations Management menu handler
+ops_management_menu() {
+    local choice
+
+    while true; do
+        show_ops_menu
+        read choice
+
+        case $choice in
+            1) pm2_management_menu ;;
+            2) nginx_management_menu ;;
+            0) break ;;
+            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
+        esac
+    done
+}
+
 # Main function
 main() {
     local choice
@@ -2765,13 +2781,12 @@ main() {
         read choice
 
         case $choice in
-            1) setup_server_menu ;;
-            2) tools_menu ;;
-            3) diagnose_menu ;;
-            4) pm2_management_menu ;;
-            5) ytdlp_menu ;;
-            6) delete_user_menu ;;
-            7) nginx_management_menu ;;
+            1) system_management_menu ;;
+            2) software_installation_menu ;;
+            3) ops_management_menu ;;
+            4) file_transfer_menu ;;
+            5) git_operations_menu ;;
+            6) ytdlp_menu ;;
             0) clear ; exit 0 ;;
             *) echo -e "${GREEN}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
