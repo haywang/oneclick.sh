@@ -21,6 +21,7 @@ show_main_menu() {
     echo -e "${GREEN}3. Diagnose${NC}"
     echo -e "${GREEN}4. PM2 Management${NC}"
     echo -e "${GREEN}5. YT-DLP Video Download${NC}"
+    echo -e "${GREEN}6. Delete User Account${NC}"
     echo -e "${GREEN}0. Exit${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
@@ -138,6 +139,21 @@ show_scp_menu() {
     echo -e "${GREEN}4. Copy Directory: Remote -> Local${NC}"
     echo -e "${GREEN}5. Copy Multiple Files${NC}"
     echo -e "${GREEN}0. Back${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}Please enter your choice: ${NC}"
+}
+
+# Function to display Delete User submenu
+show_delete_user_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}         DELETE USER ACCOUNT           ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Delete user only${NC}"
+    echo -e "${GREEN}2. Delete user and home directory${NC}"
+    echo -e "${GREEN}3. Delete user and all files${NC}"
+    echo -e "${GREEN}4. List all users${NC}"
+    echo -e "${GREEN}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}Please enter your choice: ${NC}"
 }
@@ -1657,6 +1673,153 @@ rsync_backup_timestamp() {
     read -n 1
 }
 
+# Function to delete user account
+delete_user_only() {
+    clear
+    echo -e "${BOLD_GREEN}Delete User Account${NC}"
+    echo -e "${CYAN}Enter username to delete: ${NC}"
+    read username
+
+    if [ -z "$username" ]; then
+        echo -e "${BOLD_RED}Username cannot be empty.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    # Check if user exists
+    if ! id "$username" &>/dev/null; then
+        echo -e "${BOLD_RED}User '$username' does not exist.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${YELLOW}Are you sure you want to delete user '$username'? (y/N): ${NC}"
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        sudo userdel "$username"
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}User '$username' has been deleted successfully.${NC}"
+        else
+            echo -e "${BOLD_RED}Failed to delete user '$username'.${NC}"
+        fi
+    else
+        echo -e "${CYAN}Operation cancelled.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to delete user and home directory
+delete_user_and_home() {
+    clear
+    echo -e "${BOLD_GREEN}Delete User and Home Directory${NC}"
+    echo -e "${CYAN}Enter username to delete: ${NC}"
+    read username
+
+    if [ -z "$username" ]; then
+        echo -e "${BOLD_RED}Username cannot be empty.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    # Check if user exists
+    if ! id "$username" &>/dev/null; then
+        echo -e "${BOLD_RED}User '$username' does not exist.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${YELLOW}Warning: This will delete the user and their home directory!${NC}"
+    echo -e "${YELLOW}Are you sure you want to continue? (y/N): ${NC}"
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        sudo userdel -r "$username"
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}User '$username' and their home directory have been deleted successfully.${NC}"
+        else
+            echo -e "${BOLD_RED}Failed to delete user '$username' and their home directory.${NC}"
+        fi
+    else
+        echo -e "${CYAN}Operation cancelled.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to delete user and all files
+delete_user_and_files() {
+    clear
+    echo -e "${BOLD_GREEN}Delete User and All Files${NC}"
+    echo -e "${CYAN}Enter username to delete: ${NC}"
+    read username
+
+    if [ -z "$username" ]; then
+        echo -e "${BOLD_RED}Username cannot be empty.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    # Check if user exists
+    if ! id "$username" &>/dev/null; then
+        echo -e "${BOLD_RED}User '$username' does not exist.${NC}"
+        echo -e "${CYAN}Press any key to continue...${NC}"
+        read -n 1
+        return 1
+    fi
+
+    echo -e "${YELLOW}Warning: This will delete the user and ALL files owned by them!${NC}"
+    echo -e "${YELLOW}Are you sure you want to continue? (y/N): ${NC}"
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        # Find all files owned by user
+        echo -e "${CYAN}Finding all files owned by '$username'...${NC}"
+        sudo find / -user "$username" 2>/dev/null
+
+        echo -e "${YELLOW}These are all the files that will be deleted.${NC}"
+        echo -e "${YELLOW}Proceed with deletion? (y/N): ${NC}"
+        read -r confirm
+        if [[ "$confirm" =~ ^[Yy]$ ]]; then
+            # Delete all files owned by user
+            sudo find / -user "$username" -delete 2>/dev/null
+            # Delete the user and home directory
+            sudo userdel -r "$username"
+            if [ $? -eq 0 ]; then
+                echo -e "${GREEN}User '$username' and all their files have been deleted successfully.${NC}"
+            else
+                echo -e "${BOLD_RED}Failed to complete the deletion process.${NC}"
+            fi
+        else
+            echo -e "${CYAN}Operation cancelled.${NC}"
+        fi
+    else
+        echo -e "${CYAN}Operation cancelled.${NC}"
+    fi
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
+# Function to list all users
+list_all_users() {
+    clear
+    echo -e "${BOLD_GREEN}List All Users${NC}"
+    echo -e "${CYAN}System Users:${NC}"
+    echo "================================="
+    awk -F: '$3 >= 1000 && $3 != 65534 {print $1}' /etc/passwd
+    echo "================================="
+    echo -e "${CYAN}Total number of regular users: $(awk -F: '$3 >= 1000 && $3 != 65534 {count++} END {print count}' /etc/passwd)${NC}"
+
+    echo -e "${CYAN}Press any key to continue...${NC}"
+    read -n 1
+}
+
 # Handle Setup Server menu options
 setup_server_menu() {
     local choice
@@ -1762,6 +1925,25 @@ ytdlp_menu() {
     done
 }
 
+# Handle Delete User menu options
+delete_user_menu() {
+    local choice
+
+    while true; do
+        show_delete_user_menu
+        read choice
+
+        case $choice in
+            1) delete_user_only ;;
+            2) delete_user_and_home ;;
+            3) delete_user_and_files ;;
+            4) list_all_users ;;
+            0) break ;;
+            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
+        esac
+    done
+}
+
 # Main function
 main() {
     local choice
@@ -1776,6 +1958,7 @@ main() {
             3) diagnose_menu ;;
             4) pm2_management_menu ;;
             5) ytdlp_menu ;;
+            6) delete_user_menu ;;
             0) clear ; exit 0 ;;
             *) echo -e "${GREEN}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
