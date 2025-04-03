@@ -138,42 +138,9 @@ file_transfer_menu() {
     done
 }
 
-# Function to display Setup Server submenu
-show_setup_server_menu() {
-    clear
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${BOLD_GREEN}            SETUP SERVER               ${NC}"
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}1. Add new user and set sudoer${NC}"
-    echo -e "${GREEN}2. Install Git${NC}"
-    echo -e "${GREEN}3. Install ZSH${NC}"
-    echo -e "${GREEN}4. Install Oh-My-ZSH${NC}"
-    echo -e "${GREEN}5. Install NVM${NC}"
-    echo -e "${GREEN}6. Install Node${NC}"
-    echo -e "${GREEN}7. Install PM2${NC}"
-    echo -e "${GREEN}8. Install Nginx${NC}"
-    echo -e "${GREEN}0. Back to main menu${NC}"
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}Please enter your choice: ${NC}"
-}
 
-# Function to display Tools submenu
-show_tools_menu() {
-    clear
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${BOLD_GREEN}               TOOLS                   ${NC}"
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}1. SSH${NC}"
-    echo -e "${GREEN}2. Look port use${NC}"
-    echo -e "${GREEN}3. SCP Tools${NC}"
-    echo -e "${GREEN}4. Install Homebrew${NC}"
-    echo -e "${GREEN}5. Git Remove Cached Directory${NC}"
-    echo -e "${GREEN}6. Rsync Tools${NC}"
-    echo -e "${GREEN}7. UFW Management${NC}"
-    echo -e "${GREEN}0. Back to main menu${NC}"
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}Please enter your choice: ${NC}"
-}
+
+
 
 # Function to display UFW Management submenu
 show_ufw_menu() {
@@ -195,17 +162,6 @@ show_ufw_menu() {
     echo -e "${GREEN}Please enter your choice: ${NC}"
 }
 
-# Function to display Diagnose submenu
-show_diagnose_menu() {
-    clear
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${BOLD_GREEN}             DIAGNOSE                 ${NC}"
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}1. Top${NC}"
-    echo -e "${GREEN}0. Back to main menu${NC}"
-    echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}Please enter your choice: ${NC}"
-}
 
 # Function to display PM2 Management submenu
 show_pm2_menu() {
@@ -2741,88 +2697,117 @@ ufw_management_menu() {
     done
 }
 
-# Handle Setup Server menu options
-setup_server_menu() {
+# Function to display Operations Management submenu
+show_ops_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}      OPERATIONS MANAGEMENT            ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. PM2 Management${NC}"
+    echo -e "${GREEN}2. Nginx Management${NC}"
+    echo -e "${GREEN}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Operations Management menu handler
+ops_management_menu() {
     local choice
 
     while true; do
-        show_setup_server_menu
+        show_ops_menu
         read choice
 
         case $choice in
-            1) add_new_user ;;
-            2) install_git ;;
-            3) install_zsh ;;
-            4) install_oh_my_zsh ;;
-            5) install_nvm ;;
-            6) install_node ;;
-            7) install_pm2 ;;
-            8) install_nginx ;;
+            1) pm2_management_menu ;;
+            2) nginx_management_menu ;;
             0) break ;;
             *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
     done
 }
 
-# Handle Tools menu options
-tools_menu() {
-    local choice
-
-    while true; do
-        show_tools_menu
-        read choice
-
-        case $choice in
-            1) ssh_tool ;;
-            2) check_port_usage ;;
-            3) scp_tools ;;
-            4) install_homebrew ;;
-            5) git_rm_cached_directory ;;
-            6) rsync_tools ;;
-            7) ufw_management_menu ;;
-            0) break ;;
-            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
-        esac
-    done
+# Function to display PM2 Management submenu
+show_pm2_management_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}         PM2 MANAGEMENT               ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. List All Applications${NC}"
+    echo -e "${GREEN}2. Start Application${NC}"
+    echo -e "${GREEN}3. Stop Application${NC}"
+    echo -e "${GREEN}4. Restart Application${NC}"
+    echo -e "${GREEN}5. Monitor Applications${NC}"
+    echo -e "${GREEN}6. Show Logs${NC}"
+    echo -e "${GREEN}7. Startup Setup${NC}"
+    echo -e "${GREEN}0. Back to Operations menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
 }
 
-# Handle Diagnose menu options
-diagnose_menu() {
-    local choice
-
-    while true; do
-        show_diagnose_menu
-        read choice
-
-        case $choice in
-            1) top_command ;;
-            0) break ;;
-            *) echo -e "${GREEN}Invalid option. Please try again.${NC}" ; sleep 2 ;;
-        esac
-    done
-}
-
-# Handle PM2 Management menu options
+# PM2 Management menu handler
 pm2_management_menu() {
     local choice
 
     while true; do
-        show_pm2_menu
+        show_pm2_management_menu
         read choice
 
         case $choice in
-            1) pm2_start_app ;;
-            2) pm2_list_apps ;;
-            3) pm2_stop_app ;;
-            4) pm2_restart_app ;;
-            5) pm2_reload_app ;;
-            6) pm2_delete_app ;;
-            7) pm2_show_logs ;;
-            8) pm2_monitor ;;
-            9) pm2_setup_startup ;;
-            10) pm2_save_process_list ;;
-            11) pm2_update ;;
-            12) pm2_kill ;;
+            1) pm2 list ;;
+            2) read -p "Enter application name/path: " app
+               pm2 start "$app" ;;
+            3) read -p "Enter application name: " app
+               pm2 stop "$app" ;;
+            4) read -p "Enter application name: " app
+               pm2 restart "$app" ;;
+            5) pm2 monit ;;
+            6) pm2 logs ;;
+            7) pm2 startup ;;
+            0) break ;;
+            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
+        esac
+    done
+}
+
+# Function to display Nginx Management submenu
+show_nginx_management_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}         NGINX MANAGEMENT             ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Start Nginx${NC}"
+    echo -e "${GREEN}2. Stop Nginx${NC}"
+    echo -e "${GREEN}3. Restart Nginx${NC}"
+    echo -e "${GREEN}4. Reload Configuration${NC}"
+    echo -e "${GREEN}5. Test Configuration${NC}"
+    echo -e "${GREEN}6. Show Status${NC}"
+    echo -e "${GREEN}7. Edit Configuration${NC}"
+    echo -e "${GREEN}8. Show Error Log${NC}"
+    echo -e "${GREEN}9. Show Access Log${NC}"
+    echo -e "${GREEN}0. Back to Operations menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Nginx Management menu handler
+nginx_management_menu() {
+    local choice
+
+    while true; do
+        show_nginx_management_menu
+        read choice
+
+        case $choice in
+            1) sudo systemctl start nginx ;;
+            2) sudo systemctl stop nginx ;;
+            3) sudo systemctl restart nginx ;;
+            4) sudo systemctl reload nginx ;;
+            5) sudo nginx -t ;;
+            6) sudo systemctl status nginx ;;
+            7) sudo nano /etc/nginx/nginx.conf ;;
+            8) sudo tail -f /var/log/nginx/error.log ;;
+            9) sudo tail -f /var/log/nginx/access.log ;;
             0) break ;;
             *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
@@ -2860,23 +2845,6 @@ delete_user_menu() {
             2) delete_user_and_home ;;
             3) delete_user_and_files ;;
             4) list_all_users ;;
-            0) break ;;
-            *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
-        esac
-    done
-}
-
-# Operations Management menu handler
-ops_management_menu() {
-    local choice
-
-    while true; do
-        show_ops_menu
-        read choice
-
-        case $choice in
-            1) pm2_management_menu ;;
-            2) nginx_management_menu ;;
             0) break ;;
             *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
