@@ -50,11 +50,11 @@ show_software_installation_menu() {
     echo -e "${BOLD_GREEN}      SOFTWARE INSTALLATION            ${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}1. Install Git${NC}"
-    echo -e "${GREEN}2. Install ZSH${NC}"
-    echo -e "${GREEN}3. Install Oh-My-ZSH${NC}"
-    echo -e "${GREEN}4. Install NVM${NC}"
+    echo -e "${GREEN}2. Install Zsh${NC}"
+    echo -e "${GREEN}3. Install Oh-My-Zsh${NC}"
+    echo -e "${GREEN}4. Install nvm${NC}"
     echo -e "${GREEN}5. Install Node.js${NC}"
-    echo -e "${GREEN}6. Install PM2${NC}"
+    echo -e "${GREEN}6. Install pm2${NC}"
     echo -e "${GREEN}7. Install Nginx${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
@@ -115,14 +115,12 @@ show_software_installation_menu() {
     echo -e "${BOLD_GREEN}      SOFTWARE INSTALLATION            ${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}1. Install Git${NC}"
-    echo -e "${GREEN}2. Install Homebrew${NC}"
-    echo -e "${GREEN}3. Install ZSH${NC}"
-    echo -e "${GREEN}4. Install Oh-My-ZSH${NC}"
-    echo -e "${GREEN}5. Install NVM${NC}"
-    echo -e "${GREEN}6. Install Node.js${NC}"
-    echo -e "${GREEN}7. Install PM2${NC}"
-    echo -e "${GREEN}8. Install Nginx${NC}"
-    echo -e "${GREEN}9. Install YT-DLP${NC}"
+    echo -e "${GREEN}2. Install Zsh${NC}"
+    echo -e "${GREEN}3. Install Oh-My-Zsh${NC}"
+    echo -e "${GREEN}4. Install nvm${NC}"
+    echo -e "${GREEN}5. Install Node.js${NC}"
+    echo -e "${GREEN}6. Install pm2${NC}"
+    echo -e "${GREEN}7. Install Nginx${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
@@ -157,14 +155,12 @@ software_installation_menu() {
 
         case $choice in
             1) install_git ;;
-            2) install_homebrew ;;
-            3) install_zsh ;;
-            4) install_oh_my_zsh ;;
-            5) install_nvm ;;
-            6) install_node ;;
-            7) install_pm2 ;;
-            8) install_nginx ;;
-            9) install_ytdlp ;;
+            2) install_zsh ;;
+            3) install_oh_my_zsh ;;
+            4) install_nvm ;;
+            5) install_node ;;
+            6) install_pm2 ;;
+            7) install_nginx ;;
             0) break ;;
             *) echo -e "${BOLD_RED}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
@@ -2924,10 +2920,11 @@ install_common_tools() {
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}The following tools will be installed:${NC}"
     echo -e "${GREEN}1. Git - Version Control System${NC}"
-    echo -e "${GREEN}2. ZSH & Oh-My-ZSH - Enhanced Shell${NC}"
-    echo -e "${GREEN}3. NVM & Node.js - JavaScript Runtime${NC}"
-    echo -e "${GREEN}4. PM2 - Process Manager${NC}"
-    echo -e "${GREEN}5. Nginx - Web Server${NC}"
+    echo -e "${GREEN}2. Zsh - Enhanced Shell${NC}"
+    echo -e "${GREEN}3. Oh-My-Zsh - Shell Framework${NC}"
+    echo -e "${GREEN}4. nvm & Node.js - JavaScript Runtime${NC}"
+    echo -e "${GREEN}5. pm2 - Process Manager${NC}"
+    echo -e "${GREEN}6. Nginx - Web Server${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
 
     read -p "Do you want to proceed with installation? (y/n): " confirm
