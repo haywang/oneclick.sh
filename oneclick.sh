@@ -22,6 +22,7 @@ show_main_menu() {
     echo -e "${GREEN}4. File Transfer${NC}"
     echo -e "${GREEN}5. Git Operations${NC}"
     echo -e "${GREEN}6. Video Download${NC}"
+    echo -e "${GREEN}7. Quick Install Common Tools${NC}"
     echo -e "${GREEN}0. Exit${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
@@ -2921,7 +2922,40 @@ git_operations_menu() {
     done
 }
 
-# Main function
+# Function to install common tools
+install_common_tools() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}      COMMON TOOLS INSTALLATION         ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}The following tools will be installed:${NC}"
+    echo -e "${GREEN}1. Git - Version Control System${NC}"
+    echo -e "${GREEN}2. ZSH & Oh-My-ZSH - Enhanced Shell${NC}"
+    echo -e "${GREEN}3. NVM & Node.js - JavaScript Runtime${NC}"
+    echo -e "${GREEN}4. PM2 - Process Manager${NC}"
+    echo -e "${GREEN}5. Nginx - Web Server${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+
+    read -p "Do you want to proceed with installation? (y/n): " confirm
+    if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
+        echo -e "${CYAN}Starting installation...${NC}"
+
+        install_git
+        install_zsh
+        install_oh_my_zsh
+        install_nvm
+        install_node
+        install_pm2
+        install_nginx
+
+        echo -e "${GREEN}All common tools have been installed!${NC}"
+        read -p "Press Enter to continue..."
+    else
+        echo -e "${YELLOW}Installation cancelled.${NC}"
+        sleep 2
+    fi
+}
+
 # Main function
 main() {
     local choice
@@ -2937,6 +2971,7 @@ main() {
             4) file_transfer_menu ;;
             5) git_operations_menu ;;
             6) ytdlp_menu ;;
+            7) install_common_tools ;;
             0) clear ; exit 0 ;;
             *) echo -e "${GREEN}Invalid option. Please try again.${NC}" ; sleep 2 ;;
         esac
