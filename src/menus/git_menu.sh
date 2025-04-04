@@ -4,13 +4,16 @@
 show_git_menu() {
     clear
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${BOLD_GREEN}         GIT OPERATIONS               ${NC}"
+    echo -e "${BOLD_GREEN}         GIT OPERATIONS MENU          ${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}1. Clear Git Cache${NC}"
-    echo -e "${GREEN}2. Show Repository Status${NC}"
-    echo -e "${GREEN}3. Pull Latest Changes${NC}"
-    echo -e "${GREEN}4. Push Changes${NC}"
-    echo -e "${YELLOW}0. Back to main menu${NC}"
+    echo -e "${GREEN}1. Clean Git Cache${NC}"
+    echo -e "${GREEN}2. Show Git Status${NC}"
+    echo -e "${GREEN}3. Add All Changes${NC}"
+    echo -e "${GREEN}4. Commit Changes${NC}"
+    echo -e "${GREEN}5. Push to Remote${NC}"
+    echo -e "${GREEN}6. Pull from Remote${NC}"
+    echo -e "${GREEN}7. Show Git Log${NC}"
+    echo -e "${YELLOW}0. Back${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -24,13 +27,16 @@ git_operations_menu() {
         read choice
 
         case $choice in
-            1) clear_git_cache ;;
+            1) clean_git_cache ;;
             2) show_git_status ;;
-            3) git_pull_latest ;;
-            4) git_push_changes ;;
+            3) git_add_all ;;
+            4) git_commit ;;
+            5) git_push ;;
+            6) git_pull ;;
+            7) show_git_log ;;
             0) break ;;
             *)
-                show_error "Invalid option. Please try again."
+                echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
                 sleep 2
                 ;;
         esac

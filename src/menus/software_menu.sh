@@ -13,8 +13,6 @@ show_software_menu() {
     echo -e "${GREEN}5. Install Node.js${NC}"
     echo -e "${GREEN}6. Install pm2${NC}"
     echo -e "${GREEN}7. Install Nginx${NC}"
-    echo -e "${GREEN}8. Install Python Tools${NC}"
-    echo -e "${GREEN}9. Install System Monitors${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
@@ -36,11 +34,9 @@ software_installation_menu() {
             5) install_node ;;
             6) install_pm2 ;;
             7) install_nginx ;;
-            8) install_python_tools ;;
-            9) install_system_monitors ;;
             0) break ;;
             *)
-                show_error "Invalid option. Please try again."
+                echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
                 sleep 2
                 ;;
         esac

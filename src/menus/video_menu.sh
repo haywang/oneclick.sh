@@ -4,12 +4,15 @@
 show_video_menu() {
     clear
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${BOLD_GREEN}         VIDEO DOWNLOAD               ${NC}"
+    echo -e "${BOLD_GREEN}         VIDEO DOWNLOAD MENU          ${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}1. Install/Update yt-dlp${NC}"
-    echo -e "${GREEN}2. Download Single Video${NC}"
-    echo -e "${GREEN}3. Download Playlist${NC}"
-    echo -e "${YELLOW}0. Back to main menu${NC}"
+    echo -e "${GREEN}1. Download Single Video${NC}"
+    echo -e "${GREEN}2. Download Playlist${NC}"
+    echo -e "${GREEN}3. Download Video (Best Quality)${NC}"
+    echo -e "${GREEN}4. Download Audio Only${NC}"
+    echo -e "${GREEN}5. Show Available Formats${NC}"
+    echo -e "${GREEN}6. Download Custom Format${NC}"
+    echo -e "${YELLOW}0. Back${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -23,12 +26,15 @@ video_download_menu() {
         read choice
 
         case $choice in
-            1) install_ytdlp ;;
-            2) download_single_video ;;
-            3) download_playlist ;;
+            1) download_single_video ;;
+            2) download_playlist ;;
+            3) download_best_quality ;;
+            4) download_audio ;;
+            5) show_formats ;;
+            6) download_custom_format ;;
             0) break ;;
             *)
-                show_error "Invalid option. Please try again."
+                echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
                 sleep 2
                 ;;
         esac

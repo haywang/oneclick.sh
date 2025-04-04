@@ -4,15 +4,12 @@
 show_system_menu() {
     clear
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${BOLD_GREEN}         SYSTEM MANAGEMENT            ${NC}"
+    echo -e "${BOLD_GREEN}         SYSTEM MANAGEMENT             ${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}1. User Management${NC}"
     echo -e "${GREEN}2. Port Management${NC}"
     echo -e "${GREEN}3. UFW Firewall${NC}"
     echo -e "${GREEN}4. System Monitor${NC}"
-    echo -e "${GREEN}5. Disk Usage${NC}"
-    echo -e "${GREEN}6. Memory Usage${NC}"
-    echo -e "${GREEN}7. Process Management${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
@@ -27,16 +24,13 @@ system_management_menu() {
         read choice
 
         case $choice in
-            1) user_management_menu ;;
-            2) port_management_menu ;;
-            3) ufw_management_menu ;;
-            4) system_monitor ;;
-            5) disk_usage ;;
-            6) memory_usage ;;
-            7) process_management ;;
+            1) delete_user_menu ;;  # 用户管理子菜单
+            2) check_port_usage ;;  # 端口管理
+            3) ufw_management_menu ;;  # UFW防火墙管理
+            4) top_command ;;  # 系统监控
             0) break ;;
             *)
-                show_error "Invalid option. Please try again."
+                echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
                 sleep 2
                 ;;
         esac
@@ -49,18 +43,17 @@ show_user_management_menu() {
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${BOLD_GREEN}         USER MANAGEMENT              ${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}1. Add New User${NC}"
-    echo -e "${GREEN}2. Delete User${NC}"
-    echo -e "${GREEN}3. List All Users${NC}"
-    echo -e "${GREEN}4. Change User Password${NC}"
-    echo -e "${GREEN}5. Add User to Group${NC}"
-    echo -e "${YELLOW}0. Back to system menu${NC}"
+    echo -e "${GREEN}1. Delete User Only${NC}"
+    echo -e "${GREEN}2. Delete User and Home Directory${NC}"
+    echo -e "${GREEN}3. Delete User and All Files${NC}"
+    echo -e "${GREEN}4. List All Users${NC}"
+    echo -e "${YELLOW}0. Back${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
 
 # Handle user management menu choices
-user_management_menu() {
+delete_user_menu() {
     local choice
 
     while true; do
@@ -68,18 +61,23 @@ user_management_menu() {
         read choice
 
         case $choice in
-            1) add_new_user ;;
-            2) delete_user_menu ;;
-            3) list_all_users ;;
-            4) change_user_password ;;
-            5) add_user_to_group ;;
+            1) delete_user_only ;;
+            2) delete_user_and_home ;;
+            3) delete_user_and_files ;;
+            4) list_all_users ;;
             0) break ;;
             *)
-                show_error "Invalid option. Please try again."
+                echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
                 sleep 2
                 ;;
         esac
     done
+}
+
+# System monitoring function
+top_command() {
+    show_success "Starting system monitor..."
+    top
 }
 
 # System monitoring functions
