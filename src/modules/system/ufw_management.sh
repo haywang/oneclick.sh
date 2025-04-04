@@ -1,29 +1,33 @@
 # UFW management functions
 
-# Install UFW based on system package manager
+# Install UFW
 install_ufw() {
-    if ! command -v ufw &> /dev/null; then
-        echo -e "${YELLOW}Installing UFW...${NC}"
-        if command -v apt &> /dev/null; then
-            sudo apt update && sudo apt install -y ufw
-        elif command -v dnf &> /dev/null; then
-            sudo dnf install -y ufw
-        elif command -v yum &> /dev/null; then
-            sudo yum install -y ufw
-        elif command -v pacman &> /dev/null; then
-            sudo pacman -Sy ufw
-        else
-            echo -e "${RED}Unable to detect package manager. Please install UFW manually.${NC}"
-            return 1
-        fi
-        echo -e "${GREEN}UFW installed successfully!${NC}"
-    else
+    if command -v ufw &> /dev/null; then
         echo -e "${YELLOW}UFW is already installed.${NC}"
+        sleep 2
+        return 0
     fi
+
+    echo -e "${YELLOW}Installing UFW...${NC}"
+    if command -v apt &> /dev/null; then
+        sudo apt update && sudo apt install -y ufw
+    elif command -v dnf &> /dev/null; then
+        sudo dnf install -y ufw
+    elif command -v yum &> /dev/null; then
+        sudo yum install -y ufw
+    elif command -v pacman &> /dev/null; then
+        sudo pacman -Sy ufw
+    else
+        echo -e "${RED}Unable to detect package manager. Please install UFW manually.${NC}"
+        sleep 2
+        return 1
+    fi
+
+    echo -e "${GREEN}UFW installed successfully!${NC}"
     sleep 2
 }
 
-# Enable UFW with SSH protection
+# Enable UFW
 enable_ufw() {
     if ! command -v ufw &> /dev/null; then
         echo -e "${RED}UFW is not installed. Please install it first.${NC}"
@@ -41,7 +45,8 @@ enable_ufw() {
     fi
 
     echo -e "${YELLOW}Enabling UFW...${NC}"
-    sudo ufw enable
+    sudo ufw --force enable
+    echo -e "${GREEN}UFW has been enabled.${NC}"
     sleep 2
 }
 

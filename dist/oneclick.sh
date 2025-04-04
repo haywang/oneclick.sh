@@ -1101,15 +1101,12 @@ download_playlist() {
 show_system_menu() {
     clear
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${BOLD_GREEN}         SYSTEM MANAGEMENT            ${NC}"
+    echo -e "${BOLD_GREEN}         SYSTEM MANAGEMENT             ${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}1. User Management${NC}"
     echo -e "${GREEN}2. Port Management${NC}"
     echo -e "${GREEN}3. UFW Firewall${NC}"
     echo -e "${GREEN}4. System Monitor${NC}"
-    echo -e "${GREEN}5. Disk Usage${NC}"
-    echo -e "${GREEN}6. Memory Usage${NC}"
-    echo -e "${GREEN}7. Process Management${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
@@ -1124,16 +1121,13 @@ system_management_menu() {
         read choice
 
         case $choice in
-            1) user_management_menu ;;
-            2) port_management_menu ;;
-            3) ufw_management_menu ;;
-            4) system_monitor ;;
-            5) disk_usage ;;
-            6) memory_usage ;;
-            7) process_management ;;
+            1) delete_user_menu ;;  # 用户管理子菜单
+            2) check_port_usage ;;  # 端口管理
+            3) ufw_management_menu ;;  # UFW防火墙管理
+            4) top_command ;;  # 系统监控
             0) break ;;
             *)
-                show_error "Invalid option. Please try again."
+                echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
                 sleep 2
                 ;;
         esac
@@ -1146,18 +1140,17 @@ show_user_management_menu() {
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${BOLD_GREEN}         USER MANAGEMENT              ${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}1. Add New User${NC}"
-    echo -e "${GREEN}2. Delete User${NC}"
-    echo -e "${GREEN}3. List All Users${NC}"
-    echo -e "${GREEN}4. Change User Password${NC}"
-    echo -e "${GREEN}5. Add User to Group${NC}"
-    echo -e "${YELLOW}0. Back to system menu${NC}"
+    echo -e "${GREEN}1. Delete User Only${NC}"
+    echo -e "${GREEN}2. Delete User and Home Directory${NC}"
+    echo -e "${GREEN}3. Delete User and All Files${NC}"
+    echo -e "${GREEN}4. List All Users${NC}"
+    echo -e "${YELLOW}0. Back${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
 
 # Handle user management menu choices
-user_management_menu() {
+delete_user_menu() {
     local choice
 
     while true; do
@@ -1165,18 +1158,23 @@ user_management_menu() {
         read choice
 
         case $choice in
-            1) add_new_user ;;
-            2) delete_user_menu ;;
-            3) list_all_users ;;
-            4) change_user_password ;;
-            5) add_user_to_group ;;
+            1) delete_user_only ;;
+            2) delete_user_and_home ;;
+            3) delete_user_and_files ;;
+            4) list_all_users ;;
             0) break ;;
             *)
-                show_error "Invalid option. Please try again."
+                echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
                 sleep 2
                 ;;
         esac
     done
+}
+
+# System monitoring function
+top_command() {
+    show_success "Starting system monitor..."
+    top
 }
 
 # System monitoring functions
@@ -1285,8 +1283,6 @@ show_software_menu() {
     echo -e "${GREEN}5. Install Node.js${NC}"
     echo -e "${GREEN}6. Install pm2${NC}"
     echo -e "${GREEN}7. Install Nginx${NC}"
-    echo -e "${GREEN}8. Install Python Tools${NC}"
-    echo -e "${GREEN}9. Install System Monitors${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
@@ -1308,11 +1304,9 @@ software_installation_menu() {
             5) install_node ;;
             6) install_pm2 ;;
             7) install_nginx ;;
-            8) install_python_tools ;;
-            9) install_system_monitors ;;
             0) break ;;
             *)
-                show_error "Invalid option. Please try again."
+                echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
                 sleep 2
                 ;;
         esac
@@ -1516,13 +1510,16 @@ file_transfer_menu() {
 show_git_menu() {
     clear
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${BOLD_GREEN}         GIT OPERATIONS               ${NC}"
+    echo -e "${BOLD_GREEN}         GIT OPERATIONS MENU          ${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}1. Clear Git Cache${NC}"
-    echo -e "${GREEN}2. Show Repository Status${NC}"
-    echo -e "${GREEN}3. Pull Latest Changes${NC}"
-    echo -e "${GREEN}4. Push Changes${NC}"
-    echo -e "${YELLOW}0. Back to main menu${NC}"
+    echo -e "${GREEN}1. Clean Git Cache${NC}"
+    echo -e "${GREEN}2. Show Git Status${NC}"
+    echo -e "${GREEN}3. Add All Changes${NC}"
+    echo -e "${GREEN}4. Commit Changes${NC}"
+    echo -e "${GREEN}5. Push to Remote${NC}"
+    echo -e "${GREEN}6. Pull from Remote${NC}"
+    echo -e "${GREEN}7. Show Git Log${NC}"
+    echo -e "${YELLOW}0. Back${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -1536,13 +1533,16 @@ git_operations_menu() {
         read choice
 
         case $choice in
-            1) clear_git_cache ;;
+            1) clean_git_cache ;;
             2) show_git_status ;;
-            3) git_pull_latest ;;
-            4) git_push_changes ;;
+            3) git_add_all ;;
+            4) git_commit ;;
+            5) git_push ;;
+            6) git_pull ;;
+            7) show_git_log ;;
             0) break ;;
             *)
-                show_error "Invalid option. Please try again."
+                echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
                 sleep 2
                 ;;
         esac
@@ -1554,12 +1554,15 @@ git_operations_menu() {
 show_video_menu() {
     clear
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${BOLD_GREEN}         VIDEO DOWNLOAD               ${NC}"
+    echo -e "${BOLD_GREEN}         VIDEO DOWNLOAD MENU          ${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}1. Install/Update yt-dlp${NC}"
-    echo -e "${GREEN}2. Download Single Video${NC}"
-    echo -e "${GREEN}3. Download Playlist${NC}"
-    echo -e "${YELLOW}0. Back to main menu${NC}"
+    echo -e "${GREEN}1. Download Single Video${NC}"
+    echo -e "${GREEN}2. Download Playlist${NC}"
+    echo -e "${GREEN}3. Download Video (Best Quality)${NC}"
+    echo -e "${GREEN}4. Download Audio Only${NC}"
+    echo -e "${GREEN}5. Show Available Formats${NC}"
+    echo -e "${GREEN}6. Download Custom Format${NC}"
+    echo -e "${YELLOW}0. Back${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -1573,12 +1576,15 @@ video_download_menu() {
         read choice
 
         case $choice in
-            1) install_ytdlp ;;
-            2) download_single_video ;;
-            3) download_playlist ;;
+            1) download_single_video ;;
+            2) download_playlist ;;
+            3) download_best_quality ;;
+            4) download_audio ;;
+            5) show_formats ;;
+            6) download_custom_format ;;
             0) break ;;
             *)
-                show_error "Invalid option. Please try again."
+                echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
                 sleep 2
                 ;;
         esac
