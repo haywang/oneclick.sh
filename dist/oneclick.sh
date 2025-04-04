@@ -1123,7 +1123,17 @@ system_management_menu() {
         case $choice in
             1) delete_user_menu ;;  # 用户管理子菜单
             2) check_port_usage ;;  # 端口管理
-            3) ufw_management_menu ;;  # UFW防火墙管理
+            3)
+                echo -e "${CYAN}Entering UFW management menu...${NC}"
+                sleep 1
+                if type ufw_management_menu >/dev/null 2>&1; then
+                    echo -e "${GREEN}UFW menu function found, executing...${NC}"
+                    ufw_management_menu
+                else
+                    echo -e "${RED}Error: UFW menu function not found!${NC}"
+                    sleep 2
+                fi
+                ;;
             4) top_command ;;  # 系统监控
             0) break ;;
             *)
