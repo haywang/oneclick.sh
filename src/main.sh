@@ -7,6 +7,8 @@ source src/utils/validators.sh
 
 # Source menu modules
 source src/menus/main_menu.sh
+source src/menus/system_menu.sh
+source src/menus/software_menu.sh
 source src/menus/ops_menu.sh
 source src/menus/transfer_menu.sh
 source src/menus/git_menu.sh

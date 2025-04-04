@@ -45,6 +45,10 @@ mkdir -p dist
 
     # Add menus
     echo "# Menu modules"
+    cat src/menus/system_menu.sh
+    echo ""
+    cat src/menus/software_menu.sh
+    echo ""
     cat src/menus/ops_menu.sh
     echo ""
     cat src/menus/transfer_menu.sh

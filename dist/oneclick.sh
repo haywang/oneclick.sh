@@ -2,27 +2,71 @@
 
 # Utility functions
 # Color definitions
-RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-BOLD_RED='\033[1;31m'
 BOLD_GREEN='\033[1;32m'
+RED='\033[0;31m'
+BOLD_RED='\033[1;31m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD_CYAN='\033[1;36m'
 NC='\033[0m' # No Color
 # Common utility functions
 
-# Check if running as root
-check_root() {
-    if [ "$EUID" -ne 0 ]; then
-        echo -e "${RED}Please run as root${NC}"
-        exit 1
-    fi
+# Display success message
+show_success() {
+    echo -e "${GREEN}$1${NC}"
+}
+
+# Display error message
+show_error() {
+    echo -e "${BOLD_RED}Error: $1${NC}"
+}
+
+# Display info message
+show_info() {
+    echo -e "${CYAN}$1${NC}"
+}
+
+# Display warning message
+show_warning() {
+    echo -e "${YELLOW}Warning: $1${NC}"
+}
+
+# Press any key to continue
+press_any_key() {
+    echo -e "\n${CYAN}Press any key to continue...${NC}"
+    read -n 1 -s -r
 }
 
 # Check if command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
+}
+
+# Check if running as root
+check_root() {
+    if [ "$EUID" -ne 0 ]; then
+        show_error "This operation requires root privileges."
+        return 1
+    fi
+}
+
+# Confirm action
+confirm_action() {
+    local message="$1"
+    local response
+
+    echo -e "${YELLOW}$message${NC} [y/N] "
+    read -r response
+
+    case "$response" in
+        [yY][eE][sS]|[yY])
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
 }
 
 # Check required dependencies
@@ -44,80 +88,98 @@ check_dependencies() {
         exit 1
     fi
 }
-
-# Confirm action
-confirm_action() {
-    local message=$1
-    local confirm
-
-    read -p "$message (y/n): " confirm
-    if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-# Show success message
-show_success() {
-    echo -e "${GREEN}$1${NC}"
-}
-
-# Show error message
-show_error() {
-    echo -e "${RED}$1${NC}"
-}
-
-# Show warning message
-show_warning() {
-    echo -e "${YELLOW}$1${NC}"
-}
-
-# Press any key to continue
-press_any_key() {
-    read -n 1 -s -r -p "Press any key to continue..."
-    echo
-}
 # Input validation functions
 
-# Validate if input is a number
-is_number() {
-    local input=$1
-    [[ $input =~ ^[0-9]+$ ]]
-}
+# Validate username
+validate_username() {
+    local username="$1"
 
-# Validate if input is empty
-is_empty() {
-    local input=$1
-    [[ -z "$input" ]]
-}
-
-# Validate if input is a valid port number
-is_valid_port() {
-    local port=$1
-    if ! is_number "$port"; then
+    if [[ ! "$username" =~ ^[a-z_][a-z0-9_-]*$ ]]; then
+        show_error "Invalid username format. Username must start with a letter or underscore and can only contain lowercase letters, numbers, underscores, and hyphens."
         return 1
     fi
-    if [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
+
+    if id "$username" >/dev/null 2>&1; then
+        show_error "Username '$username' already exists."
         return 1
     fi
+
     return 0
 }
 
-# Validate if input is a valid IP address
-is_valid_ip() {
-    local ip=$1
-    if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-        local IFS='.'
-        read -ra ip_array <<< "$ip"
-        for octet in "${ip_array[@]}"; do
-            if [ "$octet" -lt 0 ] || [ "$octet" -gt 255 ]; then
-                return 1
-            fi
-        done
-        return 0
+# Validate port number
+validate_port() {
+    local port="$1"
+
+    if [[ ! "$port" =~ ^[0-9]+$ ]]; then
+        show_error "Port must be a number."
+        return 1
     fi
-    return 1
+
+    if [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
+        show_error "Port must be between 1 and 65535."
+        return 1
+    fi
+
+    return 0
+}
+
+# Validate IP address
+validate_ip() {
+    local ip="$1"
+    local ip_regex="^([0-9]{1,3}\.){3}[0-9]{1,3}$"
+
+    if [[ ! "$ip" =~ $ip_regex ]]; then
+        show_error "Invalid IP address format."
+        return 1
+    fi
+
+    IFS='.' read -r -a ip_parts <<< "$ip"
+    for part in "${ip_parts[@]}"; do
+        if [ "$part" -lt 0 ] || [ "$part" -gt 255 ]; then
+            show_error "IP address parts must be between 0 and 255."
+            return 1
+        fi
+    done
+
+    return 0
+}
+
+# Validate URL
+validate_url() {
+    local url="$1"
+    local url_regex="^(https?|ftp)://[^\s/$.?#].[^\s]*$"
+
+    if [[ ! "$url" =~ $url_regex ]]; then
+        show_error "Invalid URL format."
+        return 1
+    fi
+
+    return 0
+}
+
+# Validate file path
+validate_path() {
+    local path="$1"
+
+    if [ ! -e "$path" ]; then
+        show_error "Path does not exist: $path"
+        return 1
+    fi
+
+    return 0
+}
+
+# Validate directory path
+validate_directory() {
+    local dir="$1"
+
+    if [ ! -d "$dir" ]; then
+        show_error "Not a directory: $dir"
+        return 1
+    fi
+
+    return 0
 }
 
 # Validate if input is a valid username
@@ -1033,6 +1095,259 @@ download_playlist() {
     press_any_key
 }
 # Menu modules
+# System management menu functions
+
+# Display system management menu
+show_system_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}         SYSTEM MANAGEMENT            ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. User Management${NC}"
+    echo -e "${GREEN}2. Port Management${NC}"
+    echo -e "${GREEN}3. UFW Firewall${NC}"
+    echo -e "${GREEN}4. System Monitor${NC}"
+    echo -e "${GREEN}5. Disk Usage${NC}"
+    echo -e "${GREEN}6. Memory Usage${NC}"
+    echo -e "${GREEN}7. Process Management${NC}"
+    echo -e "${YELLOW}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Handle system management menu choices
+system_management_menu() {
+    local choice
+
+    while true; do
+        show_system_menu
+        read choice
+
+        case $choice in
+            1) user_management_menu ;;
+            2) port_management_menu ;;
+            3) ufw_management_menu ;;
+            4) system_monitor ;;
+            5) disk_usage ;;
+            6) memory_usage ;;
+            7) process_management ;;
+            0) break ;;
+            *)
+                show_error "Invalid option. Please try again."
+                sleep 2
+                ;;
+        esac
+    done
+}
+
+# Display user management menu
+show_user_management_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}         USER MANAGEMENT              ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Add New User${NC}"
+    echo -e "${GREEN}2. Delete User${NC}"
+    echo -e "${GREEN}3. List All Users${NC}"
+    echo -e "${GREEN}4. Change User Password${NC}"
+    echo -e "${GREEN}5. Add User to Group${NC}"
+    echo -e "${YELLOW}0. Back to system menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Handle user management menu choices
+user_management_menu() {
+    local choice
+
+    while true; do
+        show_user_management_menu
+        read choice
+
+        case $choice in
+            1) add_new_user ;;
+            2) delete_user_menu ;;
+            3) list_all_users ;;
+            4) change_user_password ;;
+            5) add_user_to_group ;;
+            0) break ;;
+            *)
+                show_error "Invalid option. Please try again."
+                sleep 2
+                ;;
+        esac
+    done
+}
+
+# System monitoring functions
+system_monitor() {
+    show_success "System monitoring with top..."
+    top
+    press_any_key
+}
+
+disk_usage() {
+    show_success "Disk usage information:"
+    df -h
+    echo -e "\nDetailed disk usage for home directory:"
+    du -h --max-depth=1 ~
+    press_any_key
+}
+
+memory_usage() {
+    show_success "Memory usage information:"
+    free -h
+    echo -e "\nDetailed memory information:"
+    cat /proc/meminfo | grep -E "MemTotal|MemFree|MemAvailable|SwapTotal|SwapFree"
+    press_any_key
+}
+
+process_management() {
+    show_success "Running processes (sorted by CPU usage):"
+    ps aux --sort=-%cpu | head -n 11
+    press_any_key
+}
+
+# Port management menu
+show_port_management_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}         PORT MANAGEMENT              ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Check Port Usage${NC}"
+    echo -e "${GREEN}2. List All Listening Ports${NC}"
+    echo -e "${GREEN}3. Check Specific Port${NC}"
+    echo -e "${YELLOW}0. Back to system menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Handle port management menu choices
+port_management_menu() {
+    local choice
+
+    while true; do
+        show_port_management_menu
+        read choice
+
+        case $choice in
+            1) check_port_usage ;;
+            2) list_listening_ports ;;
+            3) check_specific_port ;;
+            0) break ;;
+            *)
+                show_error "Invalid option. Please try again."
+                sleep 2
+                ;;
+        esac
+    done
+}
+
+# Port management functions
+check_port_usage() {
+    show_success "Current port usage:"
+    netstat -tulpn | grep LISTEN
+    press_any_key
+}
+
+list_listening_ports() {
+    show_success "All listening ports:"
+    ss -tulwn
+    press_any_key
+}
+
+check_specific_port() {
+    local port
+    show_info "Enter port number to check:"
+    read -r port
+
+    if [[ ! "$port" =~ ^[0-9]+$ ]]; then
+        show_error "Invalid port number"
+        return 1
+    fi
+
+    show_success "Checking port $port..."
+    lsof -i :$port
+    press_any_key
+}
+# Software installation menu functions
+
+# Display software installation menu
+show_software_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}      SOFTWARE INSTALLATION            ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Install Git${NC}"
+    echo -e "${GREEN}2. Install Zsh${NC}"
+    echo -e "${GREEN}3. Install Oh-My-Zsh${NC}"
+    echo -e "${GREEN}4. Install nvm${NC}"
+    echo -e "${GREEN}5. Install Node.js${NC}"
+    echo -e "${GREEN}6. Install pm2${NC}"
+    echo -e "${GREEN}7. Install Nginx${NC}"
+    echo -e "${GREEN}8. Install Python Tools${NC}"
+    echo -e "${GREEN}9. Install System Monitors${NC}"
+    echo -e "${YELLOW}0. Back to main menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Handle software installation menu choices
+software_installation_menu() {
+    local choice
+
+    while true; do
+        show_software_menu
+        read choice
+
+        case $choice in
+            1) install_git ;;
+            2) install_zsh ;;
+            3) install_oh_my_zsh ;;
+            4) install_nvm ;;
+            5) install_node ;;
+            6) install_pm2 ;;
+            7) install_nginx ;;
+            8) install_python_tools ;;
+            9) install_system_monitors ;;
+            0) break ;;
+            *)
+                show_error "Invalid option. Please try again."
+                sleep 2
+                ;;
+        esac
+    done
+}
+
+# Python tools installation
+install_python_tools() {
+    show_success "Installing Python tools..."
+
+    # Install Python3 and pip3
+    sudo apt-get update
+    sudo apt-get install -y python3 python3-pip
+
+    # Install common Python packages
+    pip3 install --upgrade pip
+    pip3 install virtualenv
+    pip3 install ipython
+    pip3 install jupyter
+
+    show_success "Python tools installed successfully"
+    press_any_key
+}
+
+# System monitors installation
+install_system_monitors() {
+    show_success "Installing system monitoring tools..."
+
+    # Install monitoring tools
+    sudo apt-get update
+    sudo apt-get install -y htop iotop iftop nmon
+
+    show_success "System monitoring tools installed successfully"
+    press_any_key
+}
 # Operations management menu functions
 
 # Display PM2 management menu

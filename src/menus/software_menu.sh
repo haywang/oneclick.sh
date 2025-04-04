@@ -1,7 +1,7 @@
 # Software installation menu functions
 
 # Display software installation menu
-show_software_installation_menu() {
+show_software_menu() {
     clear
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${BOLD_GREEN}      SOFTWARE INSTALLATION            ${NC}"
@@ -13,6 +13,8 @@ show_software_installation_menu() {
     echo -e "${GREEN}5. Install Node.js${NC}"
     echo -e "${GREEN}6. Install pm2${NC}"
     echo -e "${GREEN}7. Install Nginx${NC}"
+    echo -e "${GREEN}8. Install Python Tools${NC}"
+    echo -e "${GREEN}9. Install System Monitors${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
@@ -23,7 +25,7 @@ software_installation_menu() {
     local choice
 
     while true; do
-        show_software_installation_menu
+        show_software_menu
         read choice
 
         case $choice in
@@ -34,6 +36,8 @@ software_installation_menu() {
             5) install_node ;;
             6) install_pm2 ;;
             7) install_nginx ;;
+            8) install_python_tools ;;
+            9) install_system_monitors ;;
             0) break ;;
             *)
                 show_error "Invalid option. Please try again."
@@ -41,4 +45,34 @@ software_installation_menu() {
                 ;;
         esac
     done
+}
+
+# Python tools installation
+install_python_tools() {
+    show_success "Installing Python tools..."
+
+    # Install Python3 and pip3
+    sudo apt-get update
+    sudo apt-get install -y python3 python3-pip
+
+    # Install common Python packages
+    pip3 install --upgrade pip
+    pip3 install virtualenv
+    pip3 install ipython
+    pip3 install jupyter
+
+    show_success "Python tools installed successfully"
+    press_any_key
+}
+
+# System monitors installation
+install_system_monitors() {
+    show_success "Installing system monitoring tools..."
+
+    # Install monitoring tools
+    sudo apt-get update
+    sudo apt-get install -y htop iotop iftop nmon
+
+    show_success "System monitoring tools installed successfully"
+    press_any_key
 }
