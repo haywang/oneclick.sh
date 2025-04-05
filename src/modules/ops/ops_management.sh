@@ -1,238 +1,285 @@
 # Operations management functions
 
 # PM2 Management Functions
-pm2_start_app() {
-    local app_path=""
 
-    show_info "Enter the path to your Node.js application:"
+# Start a PM2 application
+pm2_start_app() {
+    echo -e "${CYAN}Enter the application name or path: ${NC}"
     read -r app_path
 
-    if [ ! -f "$app_path" ]; then
-        show_error "Application file not found: $app_path"
+    if [ -z "$app_path" ]; then
+        show_error "Application path cannot be empty."
         return 1
     fi
 
-    show_success "Starting application with PM2..."
+    if ! command -v pm2 &> /dev/null; then
+        show_error "PM2 is not installed. Please install it first."
+        return 1
+    }
+
+    echo -e "${YELLOW}Starting application: $app_path${NC}"
     pm2 start "$app_path"
-
+    show_success "Application started successfully."
     press_any_key
 }
 
+# Stop a PM2 application
 pm2_stop_app() {
-    local app_name=""
+    if ! command -v pm2 &> /dev/null; then
+        show_error "PM2 is not installed. Please install it first."
+        return 1
+    }
 
-    show_info "Enter the name/id of the application to stop:"
-    read -r app_name
-
-    show_success "Stopping application..."
-    pm2 stop "$app_name"
-
-    press_any_key
-}
-
-pm2_restart_app() {
-    local app_name=""
-
-    show_info "Enter the name/id of the application to restart:"
-    read -r app_name
-
-    show_success "Restarting application..."
-    pm2 restart "$app_name"
-
-    press_any_key
-}
-
-pm2_list_apps() {
-    show_success "Listing all PM2 applications..."
+    echo -e "${CYAN}Current PM2 processes:${NC}"
     pm2 list
 
-    press_any_key
-}
-
-pm2_show_logs() {
-    local app_name=""
-
-    show_info "Enter the name/id of the application (leave empty for all):"
+    echo -e "${CYAN}Enter the application name or id to stop: ${NC}"
     read -r app_name
 
     if [ -z "$app_name" ]; then
-        pm2 logs
+        show_error "Application name cannot be empty."
+        return 1
+    fi
+
+    echo -e "${YELLOW}Stopping application: $app_name${NC}"
+    pm2 stop "$app_name"
+    show_success "Application stopped successfully."
+    press_any_key
+}
+
+# Restart a PM2 application
+pm2_restart_app() {
+    if ! command -v pm2 &> /dev/null; then
+        show_error "PM2 is not installed. Please install it first."
+        return 1
+    }
+
+    echo -e "${CYAN}Current PM2 processes:${NC}"
+    pm2 list
+
+    echo -e "${CYAN}Enter the application name or id to restart: ${NC}"
+    read -r app_name
+
+    if [ -z "$app_name" ]; then
+        show_error "Application name cannot be empty."
+        return 1
+    fi
+
+    echo -e "${YELLOW}Restarting application: $app_name${NC}"
+    pm2 restart "$app_name"
+    show_success "Application restarted successfully."
+    press_any_key
+}
+
+# List PM2 applications
+pm2_list_apps() {
+    if ! command -v pm2 &> /dev/null; then
+        show_error "PM2 is not installed. Please install it first."
+        return 1
+    }
+
+    echo -e "${CYAN}Current PM2 processes:${NC}"
+    pm2 list
+    press_any_key
+}
+
+# Show PM2 logs
+pm2_show_logs() {
+    if ! command -v pm2 &> /dev/null; then
+        show_error "PM2 is not installed. Please install it first."
+        return 1
+    }
+
+    echo -e "${CYAN}Current PM2 processes:${NC}"
+    pm2 list
+
+    echo -e "${CYAN}Enter the application name to show logs (press Enter for all logs): ${NC}"
+    read -r app_name
+
+    if [ -z "$app_name" ]; then
+        pm2 logs | cat
     else
-        pm2 logs "$app_name"
+        pm2 logs "$app_name" | cat
     fi
 }
 
+# Monitor PM2 applications
 pm2_monitor() {
-    show_success "Starting PM2 monitoring..."
-    pm2 monit
+    if ! command -v pm2 &> /dev/null; then
+        show_error "PM2 is not installed. Please install it first."
+        return 1
+    }
+
+    echo -e "${YELLOW}Starting PM2 monitoring...${NC}"
+    pm2 monit | cat
 }
 
 # Nginx Management Functions
+
+# Start Nginx
 nginx_start() {
-    check_root
+    if ! command -v nginx &> /dev/null; then
+        show_error "Nginx is not installed. Please install it first."
+        return 1
+    }
 
-    show_success "Starting Nginx..."
+    echo -e "${YELLOW}Starting Nginx...${NC}"
     sudo systemctl start nginx
-
-    if systemctl is-active --quiet nginx; then
-        show_success "Nginx started successfully"
-    else
-        show_error "Failed to start Nginx"
-        return 1
-    fi
-
+    show_success "Nginx started successfully."
     press_any_key
 }
 
+# Stop Nginx
 nginx_stop() {
-    check_root
+    if ! command -v nginx &> /dev/null; then
+        show_error "Nginx is not installed. Please install it first."
+        return 1
+    }
 
-    show_success "Stopping Nginx..."
+    echo -e "${YELLOW}Stopping Nginx...${NC}"
     sudo systemctl stop nginx
-
-    if ! systemctl is-active --quiet nginx; then
-        show_success "Nginx stopped successfully"
-    else
-        show_error "Failed to stop Nginx"
-        return 1
-    fi
-
+    show_success "Nginx stopped successfully."
     press_any_key
 }
 
+# Restart Nginx
 nginx_restart() {
-    check_root
+    if ! command -v nginx &> /dev/null; then
+        show_error "Nginx is not installed. Please install it first."
+        return 1
+    }
 
-    show_success "Restarting Nginx..."
+    echo -e "${YELLOW}Restarting Nginx...${NC}"
     sudo systemctl restart nginx
-
-    if systemctl is-active --quiet nginx; then
-        show_success "Nginx restarted successfully"
-    else
-        show_error "Failed to restart Nginx"
-        return 1
-    fi
-
+    show_success "Nginx restarted successfully."
     press_any_key
 }
 
+# Reload Nginx configuration
 nginx_reload() {
-    check_root
-
-    show_success "Reloading Nginx configuration..."
-    sudo systemctl reload nginx
-
-    if [ $? -eq 0 ]; then
-        show_success "Nginx configuration reloaded successfully"
-    else
-        show_error "Failed to reload Nginx configuration"
+    if ! command -v nginx &> /dev/null; then
+        show_error "Nginx is not installed. Please install it first."
         return 1
-    fi
+    }
 
+    echo -e "${YELLOW}Reloading Nginx configuration...${NC}"
+    sudo systemctl reload nginx
+    show_success "Nginx configuration reloaded successfully."
     press_any_key
 }
 
+# Test Nginx configuration
 nginx_test_config() {
-    check_root
+    if ! command -v nginx &> /dev/null; then
+        show_error "Nginx is not installed. Please install it first."
+        return 1
+    }
 
-    show_success "Testing Nginx configuration..."
+    echo -e "${YELLOW}Testing Nginx configuration...${NC}"
     sudo nginx -t
-
     press_any_key
 }
 
+# Show Nginx status
 nginx_show_status() {
-    check_root
+    if ! command -v nginx &> /dev/null; then
+        show_error "Nginx is not installed. Please install it first."
+        return 1
+    }
 
-    show_success "Nginx status:"
-    sudo systemctl status nginx
-
+    echo -e "${YELLOW}Nginx status:${NC}"
+    sudo systemctl status nginx | cat
     press_any_key
 }
 
+# Edit Nginx configuration
 nginx_edit_config() {
-    check_root
+    if ! command -v nginx &> /dev/null; then
+        show_error "Nginx is not installed. Please install it first."
+        return 1
+    }
 
-    local editor=${EDITOR:-nano}
-    show_success "Opening Nginx configuration in $editor..."
-    sudo $editor /etc/nginx/nginx.conf
-
-    if confirm_action "Would you like to test the configuration?"; then
-        nginx_test_config
+    local editor
+    if [ -n "$EDITOR" ]; then
+        editor="$EDITOR"
+    else
+        editor="nano"
     fi
 
+    echo -e "${YELLOW}Opening Nginx configuration in $editor...${NC}"
+    sudo $editor /etc/nginx/nginx.conf
+}
+
+# List Nginx sites
+nginx_list_sites() {
+    if ! command -v nginx &> /dev/null; then
+        show_error "Nginx is not installed. Please install it first."
+        return 1
+    }
+
+    echo -e "${CYAN}Available sites:${NC}"
+    ls -l /etc/nginx/sites-available/
+    echo -e "\n${CYAN}Enabled sites:${NC}"
+    ls -l /etc/nginx/sites-enabled/
     press_any_key
 }
 
-nginx_list_sites() {
-    check_root
+# Enable Nginx site
+nginx_enable_site() {
+    if ! command -v nginx &> /dev/null; then
+        show_error "Nginx is not installed. Please install it first."
+        return 1
+    }
 
-    show_success "Available sites:"
+    echo -e "${CYAN}Available sites:${NC}"
     ls -l /etc/nginx/sites-available/
 
-    show_success "\nEnabled sites:"
-    ls -l /etc/nginx/sites-enabled/
-
-    press_any_key
-}
-
-nginx_enable_site() {
-    check_root
-
-    local site_name=""
-
-    show_info "Enter the site configuration name:"
+    echo -e "${CYAN}Enter the site name to enable: ${NC}"
     read -r site_name
+
+    if [ -z "$site_name" ]; then
+        show_error "Site name cannot be empty."
+        return 1
+    fi
 
     if [ ! -f "/etc/nginx/sites-available/$site_name" ]; then
-        show_error "Site configuration not found: $site_name"
+        show_error "Site configuration not found."
         return 1
     fi
 
-    show_success "Enabling site $site_name..."
+    echo -e "${YELLOW}Enabling site: $site_name${NC}"
     sudo ln -s "/etc/nginx/sites-available/$site_name" "/etc/nginx/sites-enabled/"
-
-    if [ $? -eq 0 ]; then
-        show_success "Site enabled successfully"
-        if confirm_action "Would you like to test the configuration?"; then
-            nginx_test_config
-        fi
-        if confirm_action "Would you like to reload Nginx?"; then
-            nginx_reload
-        fi
-    else
-        show_error "Failed to enable site"
-        return 1
-    fi
-
+    sudo nginx -t && sudo systemctl reload nginx
+    show_success "Site enabled successfully."
     press_any_key
 }
 
+# Disable Nginx site
 nginx_disable_site() {
-    check_root
+    if ! command -v nginx &> /dev/null; then
+        show_error "Nginx is not installed. Please install it first."
+        return 1
+    }
 
-    local site_name=""
+    echo -e "${CYAN}Enabled sites:${NC}"
+    ls -l /etc/nginx/sites-enabled/
 
-    show_info "Enter the site configuration name:"
+    echo -e "${CYAN}Enter the site name to disable: ${NC}"
     read -r site_name
 
-    if [ ! -L "/etc/nginx/sites-enabled/$site_name" ]; then
-        show_error "Site is not enabled: $site_name"
+    if [ -z "$site_name" ]; then
+        show_error "Site name cannot be empty."
         return 1
     fi
 
-    show_success "Disabling site $site_name..."
+    if [ ! -f "/etc/nginx/sites-enabled/$site_name" ]; then
+        show_error "Site is not enabled."
+        return 1
+    fi
+
+    echo -e "${YELLOW}Disabling site: $site_name${NC}"
     sudo rm "/etc/nginx/sites-enabled/$site_name"
-
-    if [ $? -eq 0 ]; then
-        show_success "Site disabled successfully"
-        if confirm_action "Would you like to reload Nginx?"; then
-            nginx_reload
-        fi
-    else
-        show_error "Failed to disable site"
-        return 1
-    fi
-
+    sudo nginx -t && sudo systemctl reload nginx
+    show_success "Site disabled successfully."
     press_any_key
 }
