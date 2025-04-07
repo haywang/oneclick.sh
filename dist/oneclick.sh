@@ -513,7 +513,7 @@ pm2_start_app() {
     if ! command -v pm2 &> /dev/null; then
         show_error "PM2 is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${YELLOW}Starting application: $app_path${NC}"
     pm2 start "$app_path"
@@ -526,7 +526,7 @@ pm2_stop_app() {
     if ! command -v pm2 &> /dev/null; then
         show_error "PM2 is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${CYAN}Current PM2 processes:${NC}"
     pm2 list
@@ -550,7 +550,7 @@ pm2_restart_app() {
     if ! command -v pm2 &> /dev/null; then
         show_error "PM2 is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${CYAN}Current PM2 processes:${NC}"
     pm2 list
@@ -574,7 +574,7 @@ pm2_list_apps() {
     if ! command -v pm2 &> /dev/null; then
         show_error "PM2 is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${CYAN}Current PM2 processes:${NC}"
     pm2 list
@@ -586,7 +586,7 @@ pm2_show_logs() {
     if ! command -v pm2 &> /dev/null; then
         show_error "PM2 is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${CYAN}Current PM2 processes:${NC}"
     pm2 list
@@ -606,7 +606,7 @@ pm2_monitor() {
     if ! command -v pm2 &> /dev/null; then
         show_error "PM2 is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${YELLOW}Starting PM2 monitoring...${NC}"
     pm2 monit | cat
@@ -619,7 +619,7 @@ nginx_start() {
     if ! command -v nginx &> /dev/null; then
         show_error "Nginx is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${YELLOW}Starting Nginx...${NC}"
     sudo systemctl start nginx
@@ -632,7 +632,7 @@ nginx_stop() {
     if ! command -v nginx &> /dev/null; then
         show_error "Nginx is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${YELLOW}Stopping Nginx...${NC}"
     sudo systemctl stop nginx
@@ -645,7 +645,7 @@ nginx_restart() {
     if ! command -v nginx &> /dev/null; then
         show_error "Nginx is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${YELLOW}Restarting Nginx...${NC}"
     sudo systemctl restart nginx
@@ -658,7 +658,7 @@ nginx_reload() {
     if ! command -v nginx &> /dev/null; then
         show_error "Nginx is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${YELLOW}Reloading Nginx configuration...${NC}"
     sudo systemctl reload nginx
@@ -671,7 +671,7 @@ nginx_test_config() {
     if ! command -v nginx &> /dev/null; then
         show_error "Nginx is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${YELLOW}Testing Nginx configuration...${NC}"
     sudo nginx -t
@@ -683,7 +683,7 @@ nginx_show_status() {
     if ! command -v nginx &> /dev/null; then
         show_error "Nginx is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${YELLOW}Nginx status:${NC}"
     sudo systemctl status nginx | cat
@@ -695,7 +695,7 @@ nginx_edit_config() {
     if ! command -v nginx &> /dev/null; then
         show_error "Nginx is not installed. Please install it first."
         return 1
-    }
+    fi
 
     local editor
     if [ -n "$EDITOR" ]; then
@@ -713,7 +713,7 @@ nginx_list_sites() {
     if ! command -v nginx &> /dev/null; then
         show_error "Nginx is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${CYAN}Available sites:${NC}"
     ls -l /etc/nginx/sites-available/
@@ -727,7 +727,7 @@ nginx_enable_site() {
     if ! command -v nginx &> /dev/null; then
         show_error "Nginx is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${CYAN}Available sites:${NC}"
     ls -l /etc/nginx/sites-available/
@@ -757,7 +757,7 @@ nginx_disable_site() {
     if ! command -v nginx &> /dev/null; then
         show_error "Nginx is not installed. Please install it first."
         return 1
-    }
+    fi
 
     echo -e "${CYAN}Enabled sites:${NC}"
     ls -l /etc/nginx/sites-enabled/
