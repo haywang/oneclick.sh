@@ -57,6 +57,10 @@ mkdir -p dist
     echo ""
     cat src/menus/video_menu.sh
     echo ""
+    cat src/menus/git_menu.sh
+    echo ""
+    cat src/menus/quick_install_menu.sh
+    echo ""
     cat src/menus/main_menu.sh
     echo ""
 

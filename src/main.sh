@@ -22,6 +22,7 @@ source src/menus/ops_menu.sh
 source src/menus/transfer_menu.sh
 source src/menus/git_menu.sh
 source src/menus/video_menu.sh
+source src/menus/quick_install_menu.sh
 
 # Start the application
 main_menu
