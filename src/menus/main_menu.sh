@@ -4,7 +4,8 @@
 show_main_menu() {
     clear
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${BOLD_GREEN}         SYSTEM MANAGEMENT            ${NC}"
+    echo -e "${BOLD_GREEN}       INTERACTIVE SHELL MENU           ${NC}"
+    echo -e "${BOLD_GREEN}              by Austin                 ${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}1. System Management${NC}"
     echo -e "${GREEN}2. Software Installation${NC}"
