@@ -1352,13 +1352,14 @@ show_user_management_menu() {
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${BOLD_GREEN}         USER MANAGEMENT              ${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${GREEN}1. Delete User Only${NC}"
-    echo -e "${GREEN}2. Delete User and Home Directory${NC}"
-    echo -e "${GREEN}3. Delete User and All Files${NC}"
-    echo -e "${GREEN}4. List All Users${NC}"
+    echo -e "${GREEN}1. Add New User${NC}"
+    echo -e "${GREEN}2. Delete User Only${NC}"
+    echo -e "${GREEN}3. Delete User and Home Directory${NC}"
+    echo -e "${GREEN}4. Delete User and All Files${NC}"
+    echo -e "${GREEN}5. List All Users${NC}"
     echo -e "${YELLOW}0. Back${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${CYAN}Please enter your choice: ${NC}"
+    echo -e "${CYAN}Please enter your choice [0-5]: ${NC}"
 }
 
 # Handle user management menu choices
@@ -1367,16 +1368,17 @@ delete_user_menu() {
 
     while true; do
         show_user_management_menu
-        read choice
+        read -r choice
 
         case $choice in
-            1) delete_user_only ;;
-            2) delete_user_and_home ;;
-            3) delete_user_and_files ;;
-            4) list_all_users ;;
+            1) add_new_user ;;
+            2) delete_user_only ;;
+            3) delete_user_and_home ;;
+            4) delete_user_and_files ;;
+            5) list_all_users ;;
             0) break ;;
             *)
-                echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
+                show_error "Invalid option. Please try again."
                 sleep 2
                 ;;
         esac
