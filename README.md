@@ -31,9 +31,6 @@ This will download and install the latest release of oneclick.sh to `~/.oneclick
 git clone https://github.com/haywang/oneclick.sh.git
 cd oneclick.sh
 
-# Either run the wrapper script (it will build automatically if needed)
-./oneclick
-
 # Or build manually and run
 ./build.sh
 ./dist/oneclick.sh
@@ -54,7 +51,7 @@ This will display the main menu where you can select various options.
 If you're developing or modifying the script:
 
 1. Make your changes in the `src/` directory
-2. Use the `./oneclick` wrapper script to test your changes (it will automatically rebuild when source files change)
+2. Use the `./watch.sh` wrapper script to test your changes (it will automatically rebuild when source files change)
 3. Or manually rebuild with `./build.sh`
 4. The compiled script will be available at `dist/oneclick.sh`
 

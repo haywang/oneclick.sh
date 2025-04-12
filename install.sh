@@ -7,6 +7,8 @@ BIN_DIR="$HOME/bin"
 # Get the latest release version
 LATEST_RELEASE=$(curl -s https://api.github.com/repos/$(basename $(git config --get remote.origin.url) .git)/releases/latest | grep "tag_name" | cut -d '"' -f 4)
 
+echo "Latest release: $LATEST_RELEASE"
+echo "basename $(git config --get remote.origin.url) .git: $(basename $(git config --get remote.origin.url) .git)"
 # If there's no release yet, use default URL or exit
 if [ -z "$LATEST_RELEASE" ]; then
   echo "No releases found. Using the latest code from the main branch."
@@ -17,6 +19,8 @@ else
   IS_RELEASE=true
   echo "Found release: $LATEST_RELEASE"
 fi
+
+echo "Download URL: $DOWNLOAD_URL"
 
 # Create temporary directory
 TMP_DIR=$(mktemp -d)
