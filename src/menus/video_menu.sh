@@ -13,6 +13,7 @@ show_video_menu() {
     echo -e "${GREEN}5. Show Available Formats${NC}"
     echo -e "${GREEN}6. Download Custom Format${NC}"
     echo -e "${YELLOW}0. Back${NC}"
+    echo -e "${BOLD_RED}9. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -33,6 +34,7 @@ video_download_menu() {
             5) show_formats ;;
             6) download_custom_format ;;
             0) break ;;
+            9) exit_script ;;
             *)
                 echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
                 sleep 2

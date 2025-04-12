@@ -76,3 +76,20 @@ check_dependencies() {
         exit 1
     fi
 }
+
+# Exit script with confirmation
+exit_script() {
+    clear
+    echo -e "${BOLD_RED}========================================${NC}"
+    echo -e "${BOLD_RED}           EXIT CONFIRMATION            ${NC}"
+    echo -e "${BOLD_RED}========================================${NC}"
+
+    if confirm_action "Are you sure you want to exit the program?"; then
+        echo -e "${GREEN}Thank you for using the script! Goodbye.${NC}"
+        sleep 1
+        exit 0
+    else
+        echo -e "${CYAN}Exit cancelled. Returning to previous menu...${NC}"
+        sleep 1
+    fi
+}

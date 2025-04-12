@@ -14,7 +14,7 @@ show_main_menu() {
     echo -e "${GREEN}5. Git Operations${NC}"
     echo -e "${GREEN}6. Video Download${NC}"
     echo -e "${GREEN}7. Quick Install Common Tools${NC}"
-    echo -e "${YELLOW}0. Exit${NC}"
+    echo -e "${BOLD_RED}0. Exit${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -35,10 +35,7 @@ main_menu() {
             5) git_operations_menu ;;
             6) video_download_menu ;;
             7) quick_install_menu ;;
-            0)
-                echo -e "${GREEN}Thank you for using the system management tool!${NC}"
-                exit 0
-                ;;
+            0) exit_script ;;
             *)
                 show_error "Invalid option. Please try again."
                 sleep 2

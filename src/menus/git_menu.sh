@@ -13,7 +13,8 @@ show_git_menu() {
     echo -e "${CYAN}5. Commit Changes${NC}"
     echo -e "${CYAN}6. Remove Directory from Git Cache${NC}"
     echo -e "${CYAN}0. Back to Main Menu${NC}"
-    echo -e "${YELLOW}Please enter your choice [0-6]:${NC}"
+    echo -e "${BOLD_RED}9. Exit Program${NC}"
+    echo -e "${YELLOW}Please enter your choice [0-9]:${NC}"
 }
 
 # Handle Git operations menu choices
@@ -43,6 +44,9 @@ git_operations_menu() {
                 ;;
             0)
                 break
+                ;;
+            9)
+                exit_script
                 ;;
             *)
                 echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"

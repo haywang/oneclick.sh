@@ -11,6 +11,7 @@ show_file_transfer_menu() {
     echo -e "${GREEN}3. Generate SSH Key${NC}"
     echo -e "${GREEN}4. Copy SSH Key to Server${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
+    echo -e "${BOLD_RED}9. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -29,6 +30,7 @@ file_transfer_menu() {
             3) generate_ssh_key ;;
             4) copy_ssh_key ;;
             0) break ;;
+            9) exit_script ;;
             *)
                 show_error "Invalid option. Please try again."
                 sleep 2

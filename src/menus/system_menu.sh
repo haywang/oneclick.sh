@@ -11,6 +11,7 @@ show_system_menu() {
     echo -e "${GREEN}3. UFW Firewall${NC}"
     echo -e "${GREEN}4. System Monitor${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
+    echo -e "${BOLD_RED}9. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -29,6 +30,7 @@ system_management_menu() {
             3) ufw_management_menu ;;  # UFW防火墙管理
             4) top_command ;;  # 系统监控
             0) break ;;
+            9) exit_script ;;
             *)
                 echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
                 sleep 2
@@ -49,8 +51,9 @@ show_user_management_menu() {
     echo -e "${GREEN}4. Delete User and All Files${NC}"
     echo -e "${GREEN}5. List All Users${NC}"
     echo -e "${YELLOW}0. Back${NC}"
+    echo -e "${BOLD_RED}9. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
-    echo -e "${CYAN}Please enter your choice [0-5]: ${NC}"
+    echo -e "${CYAN}Please enter your choice [0-9]: ${NC}"
 }
 
 # Handle user management menu choices
@@ -68,6 +71,7 @@ delete_user_menu() {
             4) delete_user_and_files ;;
             5) list_all_users ;;
             0) break ;;
+            9) exit_script ;;
             *)
                 show_error "Invalid option. Please try again."
                 sleep 2
@@ -121,6 +125,7 @@ show_port_management_menu() {
     echo -e "${GREEN}2. List All Listening Ports${NC}"
     echo -e "${GREEN}3. Check Specific Port${NC}"
     echo -e "${YELLOW}0. Back to system menu${NC}"
+    echo -e "${BOLD_RED}9. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -138,6 +143,7 @@ port_management_menu() {
             2) list_listening_ports ;;
             3) check_specific_port ;;
             0) break ;;
+            9) exit_script ;;
             *)
                 show_error "Invalid option. Please try again."
                 sleep 2

@@ -14,6 +14,7 @@ show_software_menu() {
     echo -e "${GREEN}6. Install pm2${NC}"
     echo -e "${GREEN}7. Install Nginx${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
+    echo -e "${BOLD_RED}9. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -35,6 +36,7 @@ software_installation_menu() {
             6) install_pm2 ;;
             7) install_nginx ;;
             0) break ;;
+            9) exit_script ;;
             *)
                 echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
                 sleep 2

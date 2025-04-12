@@ -13,6 +13,7 @@ show_pm2_menu() {
     echo -e "${GREEN}5. Show logs${NC}"
     echo -e "${GREEN}6. Monitor applications${NC}"
     echo -e "${YELLOW}0. Back to operations menu${NC}"
+    echo -e "${BOLD_RED}9. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -33,6 +34,7 @@ pm2_management_menu() {
             5) pm2_show_logs ;;
             6) pm2_monitor ;;
             0) break ;;
+            9) exit_script ;;
             *)
                 show_error "Invalid option. Please try again."
                 sleep 2
@@ -58,6 +60,7 @@ show_nginx_menu() {
     echo -e "${GREEN}9. Enable site${NC}"
     echo -e "${GREEN}10. Disable site${NC}"
     echo -e "${YELLOW}0. Back to operations menu${NC}"
+    echo -e "${BOLD_RED}99. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -82,6 +85,7 @@ nginx_management_menu() {
             9) nginx_enable_site ;;
             10) nginx_disable_site ;;
             0) break ;;
+            99) exit_script ;;
             *)
                 show_error "Invalid option. Please try again."
                 sleep 2
@@ -99,6 +103,7 @@ show_ops_menu() {
     echo -e "${GREEN}1. PM2 Management${NC}"
     echo -e "${GREEN}2. Nginx Management${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
+    echo -e "${BOLD_RED}9. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -115,6 +120,7 @@ ops_management_menu() {
             1) pm2_management_menu ;;
             2) nginx_management_menu ;;
             0) break ;;
+            9) exit_script ;;
             *)
                 show_error "Invalid option. Please try again."
                 sleep 2
