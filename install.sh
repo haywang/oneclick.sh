@@ -4,23 +4,47 @@
 INSTALL_DIR="$HOME/.oneclick"
 BIN_DIR="$HOME/bin"
 
-# Get the latest release version
-LATEST_RELEASE=$(curl -s https://api.github.com/repos/$(basename $(git config --get remote.origin.url) .git)/releases/latest | grep "tag_name" | cut -d '"' -f 4)
+# Define repository owner and name (hardcoded as fallback)
+REPO_OWNER="haywang"
+REPO_NAME="oneclick.sh"
 
-echo "Latest release: $LATEST_RELEASE"
-echo "basename $(git config --get remote.origin.url) .git: $(basename $(git config --get remote.origin.url) .git)"
+# Try to get repository information from git if available
+if command -v git &> /dev/null && git rev-parse --is-inside-work-tree &> /dev/null; then
+  REMOTE_URL=$(git config --get remote.origin.url)
+  if [ -n "$REMOTE_URL" ]; then
+    # Extract owner and repo name from the URL
+    if [[ "$REMOTE_URL" == *"github.com"* ]]; then
+      if [[ "$REMOTE_URL" == *":"* ]]; then
+        # SSH URL format (git@github.com:owner/repo.git)
+        REPO_FULL_NAME=$(echo "$REMOTE_URL" | sed -E 's/.*:(.*)\.git/\1/')
+      else
+        # HTTPS URL format (https://github.com/owner/repo.git)
+        REPO_FULL_NAME=$(echo "$REMOTE_URL" | sed -E 's/.*github\.com\/(.*)\.git/\1/')
+      fi
+
+      if [[ "$REPO_FULL_NAME" == *"/"* ]]; then
+        REPO_OWNER=$(echo "$REPO_FULL_NAME" | cut -d'/' -f1)
+        REPO_NAME=$(echo "$REPO_FULL_NAME" | cut -d'/' -f2)
+      fi
+    fi
+  fi
+fi
+
+echo "Installing from repository: $REPO_OWNER/$REPO_NAME"
+
+# Get the latest release version
+LATEST_RELEASE=$(curl -s "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest" | grep "tag_name" | cut -d '"' -f 4)
+
 # If there's no release yet, use default URL or exit
 if [ -z "$LATEST_RELEASE" ]; then
   echo "No releases found. Using the latest code from the main branch."
-  DOWNLOAD_URL="https://github.com/$(basename $(git config --get remote.origin.url) .git)/archive/refs/heads/main.tar.gz"
+  DOWNLOAD_URL="https://github.com/$REPO_OWNER/$REPO_NAME/archive/refs/heads/main.tar.gz"
   IS_RELEASE=false
 else
-  DOWNLOAD_URL="https://github.com/$(basename $(git config --get remote.origin.url) .git)/releases/download/$LATEST_RELEASE/oneclick.tar.gz"
+  DOWNLOAD_URL="https://github.com/$REPO_OWNER/$REPO_NAME/releases/download/$LATEST_RELEASE/oneclick.tar.gz"
   IS_RELEASE=true
   echo "Found release: $LATEST_RELEASE"
 fi
-
-echo "Download URL: $DOWNLOAD_URL"
 
 # Create temporary directory
 TMP_DIR=$(mktemp -d)
