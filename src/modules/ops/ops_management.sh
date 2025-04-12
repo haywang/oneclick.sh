@@ -96,11 +96,22 @@ pm2_show_logs() {
     echo -e "${CYAN}Enter the application name to show logs (press Enter for all logs): ${NC}"
     read -r app_name
 
+    echo -e "${YELLOW}Displaying logs. Press Ctrl+C to exit logs and return to menu.${NC}"
+    echo -e "${YELLOW}------------------------------------------------${NC}"
+
     if [ -z "$app_name" ]; then
-        pm2 logs | cat
+        # 使用timeout命令限制日志显示时间，让用户有机会看到最近的日志
+        timeout 10s pm2 logs 2>&1 || true
     else
-        pm2 logs "$app_name" | cat
+        timeout 10s pm2 logs "$app_name" 2>&1 || true
     fi
+
+    echo -e "${YELLOW}------------------------------------------------${NC}"
+    echo -e "${YELLOW}Log display time limited to 10 seconds.${NC}"
+    echo -e "${GREEN}To view logs again, select option 5 from the menu.${NC}"
+    echo -e "${GREEN}For continuous log viewing, use 'pm2 logs' from terminal.${NC}"
+
+    press_any_key
 }
 
 # Monitor PM2 applications
@@ -111,7 +122,18 @@ pm2_monitor() {
     fi
 
     echo -e "${YELLOW}Starting PM2 monitoring...${NC}"
-    pm2 monit | cat
+    echo -e "${YELLOW}Press Ctrl+C to exit monitoring and return to menu.${NC}"
+    echo -e "${YELLOW}------------------------------------------------${NC}"
+
+    # 使用timeout命令限制监控显示时间
+    timeout 15s pm2 monit 2>&1 || true
+
+    echo -e "${YELLOW}------------------------------------------------${NC}"
+    echo -e "${YELLOW}Monitor display time limited to 15 seconds.${NC}"
+    echo -e "${GREEN}To monitor again, select option 6 from the menu.${NC}"
+    echo -e "${GREEN}For continuous monitoring, use 'pm2 monit' from terminal.${NC}"
+
+    press_any_key
 }
 
 # Nginx Management Functions
