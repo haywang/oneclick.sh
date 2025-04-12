@@ -148,8 +148,59 @@ port_management_menu() {
 
 # Port management functions
 check_port_usage() {
-    show_success "Current port usage:"
-    netstat -tulpn | grep LISTEN
+    # Function to check which command is available
+    check_command() {
+        if command -v netstat &> /dev/null; then
+            echo "netstat"
+        elif command -v ss &> /dev/null; then
+            echo "ss"
+        elif command -v lsof &> /dev/null; then
+            echo "lsof"
+        else
+            echo ""
+        fi
+    }
+
+    # Get available command
+    CMD=$(check_command)
+
+    if [ -z "$CMD" ]; then
+        echo -e "${BOLD_RED}No port checking command found. Installing net-tools...${NC}"
+        if command -v apt &> /dev/null; then
+            sudo apt update
+            sudo apt install -y net-tools
+            CMD="netstat"
+        elif command -v yum &> /dev/null; then
+            sudo yum install -y net-tools
+            CMD="netstat"
+        elif command -v dnf &> /dev/null; then
+            sudo dnf install -y net-tools
+            CMD="netstat"
+        elif command -v pacman &> /dev/null; then
+            sudo pacman -S net-tools
+            CMD="netstat"
+        else
+            echo -e "${BOLD_RED}Unable to install net-tools. Please install it manually.${NC}"
+            press_any_key
+            return 1
+        fi
+    fi
+
+    # Show port information based on available command
+    case $CMD in
+        "netstat")
+            show_success "Current port usage (using netstat):"
+            sudo netstat -tulpn | grep LISTEN
+            ;;
+        "ss")
+            show_success "Current port usage (using ss):"
+            sudo ss -tulpn
+            ;;
+        "lsof")
+            show_success "Current port usage (using lsof):"
+            sudo lsof -i -P -n | grep LISTEN
+            ;;
+    esac
     press_any_key
 }
 
