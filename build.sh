@@ -22,6 +22,8 @@ mkdir -p dist
     echo "# System management module"
     cat src/modules/system/user_management.sh
     echo ""
+    cat src/modules/system/ufw_management.sh
+    echo ""
 
     echo "# Software installation module"
     cat src/modules/software/software_install.sh

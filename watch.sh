@@ -25,11 +25,11 @@ fi
 chmod +x build.sh
 
 echo "Starting file watch..."
-echo "Watching directory: src/"
+echo "Watching directories and files: src/ build.sh"
 echo "Press Ctrl+C to stop watching"
 
-# Watch for changes in src directory
-fswatch -o src/ | while read f; do
+# Watch for changes in src directory and build.sh file
+fswatch -o src/ build.sh | while read f; do
     echo "File change detected: $f"
     echo "Rebuilding..."
     ./build.sh
