@@ -14,8 +14,21 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Extract version from tag
+        if: startsWith(github.ref, 'refs/tags/')
+        id: get_version
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          VERSION=${TAG#v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Version extracted: $VERSION"
+
       - name: Build Script
         run: |
+          if [ -n "$VERSION" ]; then
+            # When building from a tag, use extracted version
+            sed -i "s/VERSION=\"[^\"]*\"/VERSION=\"$VERSION\"/" build.sh
+          fi
           ./build.sh
           tar -czf oneclick.tar.gz -C dist .
 
@@ -24,3 +37,13 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: oneclick.tar.gz
+          name: Release ${{ env.VERSION }}
+          body: |
+            oneclick.sh v${{ env.VERSION }}
+
+            **Build Date:** $(date "+%Y-%m-%d %H:%M:%S")
+
+            ### Changes in this release:
+            - Auto-generated release from tag v${{ env.VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
