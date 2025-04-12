@@ -13,6 +13,7 @@ show_software_menu() {
     echo -e "${GREEN}5. Install Node.js${NC}"
     echo -e "${GREEN}6. Install pm2${NC}"
     echo -e "${GREEN}7. Install Nginx${NC}"
+    echo -e "${GREEN}8. Install All Tools${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_RED}9. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
@@ -28,49 +29,20 @@ software_installation_menu() {
         read choice
 
         case $choice in
-            1) install_git ;;
-            2) install_zsh ;;
-            3) install_oh_my_zsh ;;
-            4) install_nvm ;;
-            5) install_node ;;
-            6) install_pm2 ;;
-            7) install_nginx ;;
+            1) install_git "false" ;;
+            2) install_zsh "false" ;;
+            3) install_oh_my_zsh "false" ;;
+            4) install_nvm "false" ;;
+            5) install_node "false" ;;
+            6) install_pm2 "false" ;;
+            7) install_nginx "false" ;;
+            8) install_all_tools ;;
             0) break ;;
             9) exit_script ;;
             *)
-                echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
+                show_error "Invalid option. Please try again."
                 sleep 2
                 ;;
         esac
     done
-}
-
-# Python tools installation
-install_python_tools() {
-    show_success "Installing Python tools..."
-
-    # Install Python3 and pip3
-    sudo apt-get update
-    sudo apt-get install -y python3 python3-pip
-
-    # Install common Python packages
-    pip3 install --upgrade pip
-    pip3 install virtualenv
-    pip3 install ipython
-    pip3 install jupyter
-
-    show_success "Python tools installed successfully"
-    press_any_key
-}
-
-# System monitors installation
-install_system_monitors() {
-    show_success "Installing system monitoring tools..."
-
-    # Install monitoring tools
-    sudo apt-get update
-    sudo apt-get install -y htop iotop iftop nmon
-
-    show_success "System monitoring tools installed successfully"
-    press_any_key
 }

@@ -23,16 +23,10 @@ quick_install_menu() {
     if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
         echo -e "${CYAN}Starting installation...${NC}"
 
-        install_git
-        install_zsh
-        install_oh_my_zsh
-        install_nvm
-        install_node
-        install_pm2
-        install_nginx
+        # 使用批量安装功能
+        install_all_tools
 
         echo -e "${GREEN}All common tools have been installed!${NC}"
-        read -p "Press Enter to continue..."
     else
         echo -e "${YELLOW}Installation cancelled.${NC}"
         sleep 2
