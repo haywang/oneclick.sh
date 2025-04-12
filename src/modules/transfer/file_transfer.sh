@@ -7,11 +7,28 @@ scp_transfer() {
     local direction=""
     local remote_host=""
     local remote_user=""
+    local valid_selection=false
 
-    show_info "Select transfer direction:"
-    echo "1) Upload (Local -> Remote)"
-    echo "2) Download (Remote -> Local)"
-    read -r direction
+    while ! $valid_selection; do
+        show_info "Select transfer direction:"
+        echo "1) Upload (Local -> Remote)"
+        echo "2) Download (Remote -> Local)"
+        read -r direction
+
+        case $direction in
+            1|2)
+                valid_selection=true
+                ;;
+            "")
+                show_error "No option selected. Please enter 1 or 2."
+                sleep 1
+                ;;
+            *)
+                show_error "Invalid option. Please enter 1 or 2."
+                sleep 1
+                ;;
+        esac
+    done
 
     case $direction in
         1)
@@ -61,11 +78,6 @@ scp_transfer() {
             show_success "Downloading from remote server..."
             scp -r "$remote_user@$remote_host:$source_path" "$dest_path"
             ;;
-
-        *)
-            show_error "Invalid option"
-            return 1
-            ;;
     esac
 
     if [ $? -eq 0 ]; then
@@ -86,24 +98,61 @@ rsync_sync() {
     local remote_host=""
     local remote_user=""
     local options=""
+    local valid_dir_selection=false
+    local valid_opt_selection=false
 
-    show_info "Select sync direction:"
-    echo "1) Upload (Local -> Remote)"
-    echo "2) Download (Remote -> Local)"
-    read -r direction
+    while ! $valid_dir_selection; do
+        show_info "Select sync direction:"
+        echo "1) Upload (Local -> Remote)"
+        echo "2) Download (Remote -> Local)"
+        read -r direction
 
-    show_info "Select sync options:"
-    echo "1) Mirror (delete files that don't exist in source)"
-    echo "2) Update (only newer files)"
-    echo "3) Backup (keep old files)"
-    read -r options
+        case $direction in
+            1|2)
+                valid_dir_selection=true
+                ;;
+            "")
+                show_error "No option selected. Please enter 1 or 2."
+                sleep 1
+                ;;
+            *)
+                show_error "Invalid option. Please enter 1 or 2."
+                sleep 1
+                ;;
+        esac
+    done
 
-    case $options in
-        1) options="-avz --delete" ;;
-        2) options="-avz --update" ;;
-        3) options="-avz --backup" ;;
-        *) options="-avz" ;;
-    esac
+    while ! $valid_opt_selection; do
+        show_info "Select sync options:"
+        echo "1) Mirror (delete files that don't exist in source)"
+        echo "2) Update (only newer files)"
+        echo "3) Backup (keep old files)"
+        read -r sync_option
+
+        case $sync_option in
+            1)
+                options="-avz --delete"
+                valid_opt_selection=true
+                ;;
+            2)
+                options="-avz --update"
+                valid_opt_selection=true
+                ;;
+            3)
+                options="-avz --backup"
+                valid_opt_selection=true
+                ;;
+            "")
+                # 默认选项
+                options="-avz"
+                valid_opt_selection=true
+                ;;
+            *)
+                show_error "Invalid option. Please enter 1, 2, or 3."
+                sleep 1
+                ;;
+        esac
+    done
 
     case $direction in
         1)
@@ -149,11 +198,6 @@ rsync_sync() {
             show_success "Syncing from remote server..."
             rsync $options "$remote_user@$remote_host:$source_path/" "$dest_path"
             ;;
-
-        *)
-            show_error "Invalid option"
-            return 1
-            ;;
     esac
 
     if [ $? -eq 0 ]; then
@@ -171,11 +215,29 @@ generate_ssh_key() {
     local key_type=""
     local key_name=""
     local key_comment=""
+    local valid_selection=false
 
-    show_info "Select SSH key type:"
-    echo "1) RSA (default)"
-    echo "2) Ed25519 (more secure)"
-    read -r key_type
+    while ! $valid_selection; do
+        show_info "Select SSH key type:"
+        echo "1) RSA (default)"
+        echo "2) Ed25519 (more secure)"
+        read -r key_type
+
+        case $key_type in
+            1|2)
+                valid_selection=true
+                ;;
+            "")
+                # 默认选项为RSA
+                key_type=1
+                valid_selection=true
+                ;;
+            *)
+                show_error "Invalid option. Please enter 1 or 2."
+                sleep 1
+                ;;
+        esac
+    done
 
     show_info "Enter key name (default: id_rsa or id_ed25519):"
     read -r key_name

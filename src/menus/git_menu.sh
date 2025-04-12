@@ -4,17 +4,20 @@
 
 # Display Git operations menu
 show_git_menu() {
-    clear
-    echo -e "${BOLD_GREEN}Git Operations Menu${NC}"
-    echo -e "${CYAN}1. Show Git Status${NC}"
-    echo -e "${CYAN}2. Pull from Remote${NC}"
-    echo -e "${CYAN}3. Push to Remote${NC}"
-    echo -e "${CYAN}4. Add All Changes${NC}"
-    echo -e "${CYAN}5. Commit Changes${NC}"
-    echo -e "${CYAN}6. Remove Directory from Git Cache${NC}"
-    echo -e "${CYAN}0. Back to Main Menu${NC}"
+clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}         Git Operations Menu             ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Show Git Status${NC}"
+    echo -e "${GREEN}2. Pull from Remote${NC}"
+    echo -e "${GREEN}3. Push to Remote${NC}"
+    echo -e "${GREEN}4. Add All Changes${NC}"
+    echo -e "${GREEN}5. Commit Changes${NC}"
+    echo -e "${GREEN}6. Remove Directory from Git Cache${NC}"
+    echo -e "${YELLOW}0. Back to Main Menu${NC}"
     echo -e "${BOLD_RED}9. Exit Program${NC}"
-    echo -e "${YELLOW}Please enter your choice [0-9]:${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
 }
 
 # Handle Git operations menu choices
