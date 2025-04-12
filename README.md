@@ -1,50 +1,74 @@
-# Interactive Shell Menu
+# oneclick.sh
 
-This is a green-themed interactive shell menu script that provides server setup, tools, and diagnostic functions.
+A comprehensive shell script that provides one-click solutions for common system management, software installation, and operations tasks.
 
 ## Features
 
-### Server Setup
-- Add new user and set sudoer privileges
-- Install Git
-- Install ZSH
-- Install Oh-My-ZSH
-- Install NVM
-- Install Node.js
-- Install PM2
-- Install Nginx
+- User Management (add/delete users)
+- Software Installation (Git, ZSH, Node.js, PM2, Nginx, etc.)
+- UFW Firewall Management
+- File Transfer Operations (rsync, scp)
+- Video Download with yt-dlp
+- Git Operations
+- System Monitoring
+- Port Management
+- And more...
 
-### Tools
-- SSH connection
-- Check port usage
-- Copy files from local to server (SCP)
-- Copy files from server to local (SCP)
+## Installation
 
-### Diagnostics
-- Run Top command to monitor system resources
+### Option 1: One-line Installation (Recommended)
+
+```bash
+curl -sL https://raw.githubusercontent.com/haywang/oneclick.sh/main/install.sh | bash
+```
+
+This will download and install the latest release of oneclick.sh to `~/.oneclick` and create a symbolic link in `~/bin`.
+
+### Option 2: Manual Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/haywang/oneclick.sh.git
+cd oneclick.sh
+
+# Either run the wrapper script (it will build automatically if needed)
+./oneclick
+
+# Or build manually and run
+./build.sh
+./dist/oneclick.sh
+```
 
 ## Usage
 
-1. Make sure the script has execution permissions:
+After installation, you can run oneclick.sh simply by typing:
+
+```bash
+oneclick
+```
+
+This will display the main menu where you can select various options.
+
+## Development
+
+If you're developing or modifying the script:
+
+1. Make your changes in the `src/` directory
+2. Use the `./oneclick` wrapper script to test your changes (it will automatically rebuild when source files change)
+3. Or manually rebuild with `./build.sh`
+4. The compiled script will be available at `dist/oneclick.sh`
+
+## Release Process
+
+To create a new release:
+
+1. Push a new tag with the version number:
    ```bash
-   chmod +x oneclick.sh
+   git tag v1.0.0
+   git push origin v1.0.0
    ```
+2. GitHub Actions will automatically build and create a release
 
-2. Run the script:
-   ```bash
-   ./oneclick.sh
-   ```
+## License
 
-3. Use number keys to select menu options
-
-## System Requirements
-
-- Debian/Ubuntu-based Linux system
-- Sudo privileges required for certain commands
-- Network connection required to install packages
-
-## Notes
-
-- This script is primarily for initial setup of new servers
-- Make sure you understand the effect of each command before using in production
-- Some operations may require terminal or system restart to take effect
+MIT
