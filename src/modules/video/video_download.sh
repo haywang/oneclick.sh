@@ -39,13 +39,28 @@ install_ytdlp() {
                 press_any_key
                 return 0
             else
-                show_warning "Failed to install yt-dlp with Homebrew. Trying pip3 method..."
+                show_warning "Failed to install yt-dlp with Homebrew. Trying alternative methods..."
             fi
         else
-            show_warning "Homebrew not found. Trying pip3 method..."
+            show_warning "Homebrew not found. Trying alternative methods..."
         fi
 
-        # 如果brew不存在或安装失败，则检查pip3
+        # 尝试使用系统包管理器安装
+        if command_exists apt-get; then
+            show_success "Trying to install yt-dlp with apt..."
+            sudo apt update && sudo apt install -y python3-pip python3-yt-dlp
+
+            if command_exists yt-dlp; then
+                show_success "yt-dlp installed successfully with apt to version:"
+                yt-dlp --version
+                press_any_key
+                return 0
+            else
+                show_warning "yt-dlp not available in apt repositories or installation failed. Trying pip3..."
+            fi
+        fi
+
+        # 如果系统包管理器安装失败，尝试pip3安装
         if ! command_exists pip3; then
             show_warning "pip3 is not installed. Attempting to install Python3 and pip3..."
 
@@ -63,7 +78,7 @@ install_ytdlp() {
                 # Linux系统
                 if command_exists apt-get; then
                     sudo apt-get update
-                    sudo apt-get install -y python3 python3-pip
+                    sudo apt-get install -y python3-full python3-pip
                 elif command_exists yum; then
                     sudo yum install -y python3 python3-pip
                 elif command_exists dnf; then
@@ -83,15 +98,84 @@ install_ytdlp() {
             return 1
         fi
 
-        # 使用pip3安装yt-dlp
+        # 尝试使用pip3安装
         show_success "Installing yt-dlp with pip3..."
         pip3 install yt-dlp
 
+        # 检查是否安装失败
+        if ! command_exists yt-dlp; then
+            show_warning "Standard pip3 installation failed. Attempting alternative methods..."
+
+            # 提示用户选择安装方法
+            echo -e "${CYAN}Select an installation method:${NC}"
+            echo "1) Try installing with --break-system-packages flag (may affect system stability)"
+            echo "2) Install using pipx (recommended for Python applications)"
+            echo "3) Create a virtual environment and install there"
+            echo "4) Cancel installation"
+            read -r install_choice
+
+            case $install_choice in
+                1)
+                    show_success "Installing with --break-system-packages flag..."
+                    pip3 install --break-system-packages yt-dlp
+                    ;;
+                2)
+                    # 检查pipx是否存在，不存在则安装
+                    if ! command_exists pipx; then
+                        show_success "Installing pipx first..."
+                        if command_exists apt-get; then
+                            sudo apt-get install -y pipx
+                        else
+                            pip3 install --user pipx
+                            python3 -m pipx ensurepath
+                        fi
+                    fi
+
+                    # 使用pipx安装yt-dlp
+                    show_success "Installing yt-dlp with pipx..."
+                    pipx install yt-dlp
+                    ;;
+                3)
+                    # 创建虚拟环境
+                    show_success "Creating virtual environment for yt-dlp..."
+                    mkdir -p ~/.venv
+                    python3 -m venv ~/.venv/yt-dlp
+
+                    # 在虚拟环境中安装yt-dlp
+                    show_success "Installing yt-dlp in virtual environment..."
+                    ~/.venv/yt-dlp/bin/pip install yt-dlp
+
+                    # 创建符号链接到PATH
+                    show_success "Creating symbolic link to make yt-dlp available in PATH..."
+                    mkdir -p ~/bin
+                    ln -sf ~/.venv/yt-dlp/bin/yt-dlp ~/bin/yt-dlp
+
+                    # 检查~/bin是否在PATH中
+                    if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
+                        echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+                        echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
+                        export PATH="$HOME/bin:$PATH"
+                    fi
+                    ;;
+                4)
+                    show_warning "Installation cancelled."
+                    press_any_key
+                    return 1
+                    ;;
+                *)
+                    show_error "Invalid option. Installation cancelled."
+                    press_any_key
+                    return 1
+                    ;;
+            esac
+        fi
+
+        # 最终检查是否安装成功
         if command_exists yt-dlp; then
             show_success "yt-dlp installed successfully to version:"
             yt-dlp --version
         else
-            show_error "Failed to install yt-dlp"
+            show_error "Failed to install yt-dlp. Please try another installation method."
             press_any_key
             return 1
         fi
@@ -104,38 +188,86 @@ install_ytdlp() {
         show_success "Checking for updates..."
 
         local has_update=false
+        local installation_method=""
+
+        # 确定yt-dlp的安装方式
+        if command_exists brew && brew list | grep -q yt-dlp; then
+            installation_method="brew"
+        elif [[ -f ~/.venv/yt-dlp/bin/yt-dlp && -L ~/bin/yt-dlp && ~/bin/yt-dlp -ef ~/.venv/yt-dlp/bin/yt-dlp ]]; then
+            installation_method="venv"
+        elif command_exists pipx && pipx list | grep -q yt-dlp; then
+            installation_method="pipx"
+        elif command_exists apt-get && dpkg -l | grep -q python3-yt-dlp; then
+            installation_method="apt"
+        else
+            installation_method="pip"
+        fi
 
         # 根据安装方式检查更新
-        if command_exists brew && brew list | grep -q yt-dlp; then
-            # 使用brew检查更新
-            brew outdated yt-dlp
-            if [ $? -eq 0 ]; then
-                show_warning "Already the latest version. No update needed."
+        case $installation_method in
+            brew)
+                # 使用brew检查更新
+                brew outdated yt-dlp
+                if [ $? -eq 0 ]; then
+                    show_warning "Already the latest version. No update needed."
+                    press_any_key
+                    return 0
+                else
+                    show_success "New version available."
+                    has_update=true
+                fi
+                ;;
+            venv)
+                # 使用虚拟环境pip检查更新
+                ~/.venv/yt-dlp/bin/pip list --outdated | grep yt-dlp
+                if [ $? -ne 0 ]; then
+                    show_warning "Already the latest version. No update needed."
+                    press_any_key
+                    return 0
+                else
+                    show_success "New version available."
+                    has_update=true
+                fi
+                ;;
+            pipx)
+                # 使用pipx检查更新
+                show_success "Checking pipx for updates..."
+                pipx upgrade yt-dlp
                 press_any_key
                 return 0
-            else
-                show_success "New version available."
-                has_update=true
-            fi
-        else
-            # 使用pip检查更新
-            if ! command_exists pip3; then
-                show_error "pip3 not installed. Cannot check for updates."
-                press_any_key
-                return 1
-            fi
+                ;;
+            apt)
+                # 使用apt检查更新
+                apt list --upgradable | grep python3-yt-dlp
+                if [ $? -ne 0 ]; then
+                    show_warning "Already the latest version. No update needed."
+                    press_any_key
+                    return 0
+                else
+                    show_success "New version available."
+                    has_update=true
+                fi
+                ;;
+            pip)
+                # 使用pip检查更新
+                if ! command_exists pip3; then
+                    show_error "pip3 not installed. Cannot check for updates."
+                    press_any_key
+                    return 1
+                fi
 
-            # 检查pip安装的更新
-            pip3 list --outdated | grep yt-dlp
-            if [ $? -ne 0 ]; then
-                show_warning "Already the latest version. No update needed."
-                press_any_key
-                return 0
-            else
-                show_success "New version available."
-                has_update=true
-            fi
-        fi
+                # 检查pip安装的更新
+                pip3 list --outdated | grep yt-dlp
+                if [ $? -ne 0 ]; then
+                    show_warning "Already the latest version. No update needed."
+                    press_any_key
+                    return 0
+                else
+                    show_success "New version available."
+                    has_update=true
+                fi
+                ;;
+        esac
 
         # 如果有更新可用，询问用户是否要更新
         if $has_update; then
@@ -151,21 +283,87 @@ install_ytdlp() {
             show_success "Updating yt-dlp..."
 
             # 根据安装方式进行更新
-            if command_exists brew && brew list | grep -q yt-dlp; then
-                # 通过Homebrew更新
-                show_success "Updating yt-dlp with Homebrew..."
-                brew upgrade yt-dlp
-            else
-                # 通过pip更新
-                if ! command_exists pip3; then
-                    show_error "pip3 not installed. Cannot update."
-                    press_any_key
-                    return 1
-                fi
+            case $installation_method in
+                brew)
+                    # 通过Homebrew更新
+                    show_success "Updating yt-dlp with Homebrew..."
+                    brew upgrade yt-dlp
+                    ;;
+                venv)
+                    # 通过虚拟环境pip更新
+                    show_success "Updating yt-dlp in virtual environment..."
+                    ~/.venv/yt-dlp/bin/pip install --upgrade yt-dlp
+                    ;;
+                apt)
+                    # 通过apt更新
+                    show_success "Updating yt-dlp with apt..."
+                    sudo apt update && sudo apt install --only-upgrade -y python3-yt-dlp
+                    ;;
+                pip)
+                    # 询问用户如何处理pip更新
+                    show_info "Pip installation in an externally managed environment may fail. Choose an update method:"
+                    echo "1) Try updating with --break-system-packages flag (may affect system stability)"
+                    echo "2) Reinstall using pipx (recommended for Python applications)"
+                    echo "3) Reinstall in a virtual environment"
+                    echo "4) Cancel update"
+                    read -r update_pip_choice
 
-                show_success "Updating yt-dlp with pip3..."
-                pip3 install --upgrade yt-dlp
-            fi
+                    case $update_pip_choice in
+                        1)
+                            show_success "Updating with --break-system-packages flag..."
+                            pip3 install --upgrade --break-system-packages yt-dlp
+                            ;;
+                        2)
+                            # 检查pipx是否存在，不存在则安装
+                            if ! command_exists pipx; then
+                                show_success "Installing pipx first..."
+                                if command_exists apt-get; then
+                                    sudo apt-get install -y pipx
+                                else
+                                    pip3 install --user pipx
+                                    python3 -m pipx ensurepath
+                                fi
+                            fi
+
+                            # 使用pipx安装yt-dlp
+                            show_success "Installing yt-dlp with pipx..."
+                            pipx install yt-dlp --force
+                            ;;
+                        3)
+                            # 创建虚拟环境
+                            show_success "Creating virtual environment for yt-dlp..."
+                            mkdir -p ~/.venv
+                            python3 -m venv ~/.venv/yt-dlp
+
+                            # 在虚拟环境中安装yt-dlp
+                            show_success "Installing yt-dlp in virtual environment..."
+                            ~/.venv/yt-dlp/bin/pip install yt-dlp
+
+                            # 创建符号链接到PATH
+                            show_success "Creating symbolic link to make yt-dlp available in PATH..."
+                            mkdir -p ~/bin
+                            ln -sf ~/.venv/yt-dlp/bin/yt-dlp ~/bin/yt-dlp
+
+                            # 检查~/bin是否在PATH中
+                            if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
+                                echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+                                echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
+                                export PATH="$HOME/bin:$PATH"
+                            fi
+                            ;;
+                        4)
+                            show_warning "Update cancelled."
+                            press_any_key
+                            return 0
+                            ;;
+                        *)
+                            show_error "Invalid option. Update cancelled."
+                            press_any_key
+                            return 0
+                            ;;
+                    esac
+                    ;;
+            esac
 
             if [ $? -eq 0 ]; then
                 show_success "yt-dlp updated successfully. New version:"
