@@ -147,66 +147,108 @@ port_management_menu() {
 }
 
 # Port management functions
-check_port_usage() {
-    # Function to check which command is available
-    check_command() {
-        if command -v netstat &> /dev/null; then
-            echo "netstat"
-        elif command -v ss &> /dev/null; then
-            echo "ss"
-        elif command -v lsof &> /dev/null; then
-            echo "lsof"
-        else
-            echo ""
-        fi
-    }
 
-    # Get available command
-    CMD=$(check_command)
+# Function to check which command is available
+check_port_command() {
+    if command -v netstat &> /dev/null; then
+        echo "netstat"
+    elif command -v ss &> /dev/null; then
+        echo "ss"
+    elif command -v lsof &> /dev/null; then
+        echo "lsof"
+    else
+        echo ""
+    fi
+}
 
-    if [ -z "$CMD" ]; then
-        echo -e "${BOLD_RED}No port checking command found. Installing net-tools...${NC}"
-        if command -v apt &> /dev/null; then
-            sudo apt update
-            sudo apt install -y net-tools
-            CMD="netstat"
-        elif command -v yum &> /dev/null; then
-            sudo yum install -y net-tools
-            CMD="netstat"
-        elif command -v dnf &> /dev/null; then
-            sudo dnf install -y net-tools
-            CMD="netstat"
-        elif command -v pacman &> /dev/null; then
-            sudo pacman -S net-tools
-            CMD="netstat"
-        else
-            echo -e "${BOLD_RED}Unable to install net-tools. Please install it manually.${NC}"
-            press_any_key
-            return 1
-        fi
+# Function to install net-tools if no port checking command is available
+install_port_tools() {
+    echo -e "${BOLD_RED}No port checking command found. Installing net-tools...${NC}"
+    if command -v apt &> /dev/null; then
+        sudo apt update
+        sudo apt install -y net-tools
+        echo "netstat"
+    elif command -v yum &> /dev/null; then
+        sudo yum install -y net-tools
+        echo "netstat"
+    elif command -v dnf &> /dev/null; then
+        sudo dnf install -y net-tools
+        echo "netstat"
+    elif command -v pacman &> /dev/null; then
+        sudo pacman -S net-tools
+        echo "netstat"
+    else
+        echo -e "${BOLD_RED}Unable to install net-tools. Please install it manually.${NC}"
+        press_any_key
+        echo ""
+    fi
+}
+
+# Function to get available port checking command
+get_port_command() {
+    local cmd
+    cmd=$(check_port_command)
+
+    if [ -z "$cmd" ]; then
+        cmd=$(install_port_tools)
     fi
 
-    # Show port information based on available command
-    case $CMD in
+    echo "$cmd"
+}
+
+# Function to show port information based on command
+show_port_info() {
+    local cmd="$1"
+    local port="$2"
+
+    case $cmd in
         "netstat")
-            show_success "Current port usage (using netstat):"
-            sudo netstat -tulpn | grep LISTEN
+            if [ -z "$port" ]; then
+                sudo netstat -tulpn
+            else
+                sudo netstat -tulpn | grep ":$port "
+            fi
             ;;
         "ss")
-            show_success "Current port usage (using ss):"
-            sudo ss -tulpn
+            if [ -z "$port" ]; then
+                sudo ss -tulpn
+            else
+                sudo ss -tulpn | grep ":$port "
+            fi
             ;;
         "lsof")
-            show_success "Current port usage (using lsof):"
-            sudo lsof -i -P -n | grep LISTEN
+            if [ -z "$port" ]; then
+                sudo lsof -i -P -n | grep LISTEN
+            else
+                sudo lsof -i:$port -P -n
+            fi
             ;;
     esac
+}
+
+check_port_usage() {
+    local cmd
+    cmd=$(get_port_command)
+
+    if [ -z "$cmd" ]; then
+        return 1
+    fi
+
+    show_success "Current port usage (using $cmd):"
+    show_port_info "$cmd"
     press_any_key
 }
 
 list_listening_ports() {
-    show_success "All listening ports:"
-    ss -tulwn
+    local cmd
+    cmd=$(get_port_command)
+
+    if [ -z "$cmd" ]; then
+        return 1
+    fi
+
+    show_success "All listening ports (using $cmd):"
+    show_port_info "$cmd"
     press_any_key
 }
 
@@ -220,7 +262,14 @@ check_specific_port() {
         return 1
     fi
 
-    show_success "Checking port $port..."
-    lsof -i :$port
+    local cmd
+    cmd=$(get_port_command)
+
+    if [ -z "$cmd" ]; then
+        return 1
+    fi
+
+    show_success "Checking port $port (using $cmd):"
+    show_port_info "$cmd" "$port"
     press_any_key
 }
