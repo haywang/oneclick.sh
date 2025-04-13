@@ -24,8 +24,21 @@ if [ -z "$NEW_VERSION" ]; then
     echo "Auto-incrementing to version: $NEW_VERSION"
 fi
 
-# Update version in build.sh
-sed -i "s/VERSION=\"[^\"]*\"/VERSION=\"$NEW_VERSION\"/" build.sh
+# Update version in build.sh - OS-specific approach
+if [[ "$(uname)" == "Darwin" ]]; then
+    # macOS version of sed requires a backup extension
+    sed -i '' "s/VERSION=\"[^\"]*\"/VERSION=\"$NEW_VERSION\"/" build.sh
+else
+    # Linux version of sed
+    sed -i "s/VERSION=\"[^\"]*\"/VERSION=\"$NEW_VERSION\"/" build.sh
+fi
+
+# Verify the change was made
+NEW_VERSION_CHECK=$(grep "VERSION=" build.sh | head -n 1 | cut -d '"' -f 2)
+if [ "$NEW_VERSION" != "$NEW_VERSION_CHECK" ]; then
+    echo "ERROR: Version update failed. Current version in build.sh is still: $NEW_VERSION_CHECK"
+    exit 1
+fi
 
 echo "Version updated to $NEW_VERSION in build.sh"
 
