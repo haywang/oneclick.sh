@@ -10,6 +10,7 @@ show_system_menu() {
     echo -e "${GREEN}2. Port Management${NC}"
     echo -e "${GREEN}3. UFW Firewall${NC}"
     echo -e "${GREEN}4. System Monitor${NC}"
+    echo -e "${GREEN}5. System Information${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_RED}9. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
@@ -29,6 +30,7 @@ system_management_menu() {
             2) port_management_menu ;;  # 端口管理
             3) ufw_management_menu ;;  # UFW防火墙管理
             4) top_command ;;  # 系统监控
+            5) show_system_info ;;  # 系统信息
             0) break ;;
             9) exit_script ;;
             *)
@@ -277,5 +279,115 @@ check_specific_port() {
 
     show_success "Checking port $port (using $cmd):"
     show_port_info "$cmd" "$port"
+    press_any_key
+}
+
+# System information function
+show_system_info() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}         SYSTEM INFORMATION            ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "\n${BOLD_CYAN}System Uptime:${NC}"
+    if [[ "$(uname)" == "Darwin" ]]; then
+        uptime
+    else
+        if [ -f /proc/uptime ]; then
+            uptime
+        else
+            echo "Uptime information not available"
+        fi
+    fi
+
+    echo -e "\n${BOLD_CYAN}Last System Boot:${NC}"
+    if command -v who &> /dev/null; then
+        who -b
+    elif [[ "$(uname)" == "Darwin" ]]; then
+        sysctl -n kern.boottime
+    else
+        echo "Last boot information not available"
+    fi
+
+    if command -v hostnamectl &> /dev/null; then
+        echo -e "\n${BOLD_CYAN}Hostname and Virtualization:${NC}"
+        hostnamectl
+    fi
+
+    # OS information
+    echo -e "${BOLD_CYAN}Operating System:${NC}"
+
+    # Check if lsb_release exists
+    if command -v lsb_release &> /dev/null; then
+        lsb_release -a 2>/dev/null
+    else
+        # Try various OS release files
+        if [ -f /etc/os-release ]; then
+            cat /etc/os-release | grep -E "PRETTY_NAME|VERSION|NAME" | sort
+        elif [ -f /etc/redhat-release ]; then
+            cat /etc/redhat-release
+        elif [ -f /etc/debian_version ]; then
+            echo "Debian $(cat /etc/debian_version)"
+        elif [[ "$(uname)" == "Darwin" ]]; then
+            echo "macOS $(sw_vers -productVersion) ($(sw_vers -buildVersion))"
+            echo "Product Name: $(sw_vers -productName)"
+        else
+            echo "OS information not available"
+        fi
+    fi
+
+    echo -e "\n${BOLD_CYAN}Kernel Information:${NC}"
+    uname -a
+
+    # Hardware information
+    echo -e "\n${BOLD_CYAN}CPU Information:${NC}"
+    if [[ "$(uname)" == "Darwin" ]]; then
+        sysctl -n machdep.cpu.brand_string
+        echo "Cores: $(sysctl -n hw.physicalcpu) (Physical), $(sysctl -n hw.logicalcpu) (Logical)"
+    else
+        if [ -f /proc/cpuinfo ]; then
+            grep -m 1 "model name" /proc/cpuinfo | cut -d ":" -f 2 | sed 's/^[ \t]*//'
+            echo "Cores: $(grep -c "processor" /proc/cpuinfo)"
+        else
+            echo "CPU information not available"
+        fi
+    fi
+
+    echo -e "\n${BOLD_CYAN}Memory Information:${NC}"
+    if [[ "$(uname)" == "Darwin" ]]; then
+        echo "Total Physical Memory: $(($(sysctl -n hw.memsize) / 1024 / 1024 / 1024)) GB"
+    else
+        if command -v free &> /dev/null; then
+            free -h | grep -E "Mem|total"
+        elif [ -f /proc/meminfo ]; then
+            grep -E "MemTotal|MemFree|MemAvailable|SwapTotal|SwapFree" /proc/meminfo
+        else
+            echo "Memory information not available"
+        fi
+    fi
+
+    echo -e "\n${BOLD_CYAN}Disk Information:${NC}"
+    if command -v df &> /dev/null; then
+        df -h | grep -v "tmpfs\|udev\|loop" | sort
+    else
+        echo "Disk information not available"
+    fi
+
+    echo -e "\n${BOLD_CYAN}Network Information:${NC}"
+    if [[ "$(uname)" == "Darwin" ]]; then
+        # Get primary interface on macOS
+        primary_interface=$(route -n get default | grep interface | awk '{print $2}')
+        echo "Primary Interface: $primary_interface"
+        ifconfig $primary_interface | grep -E "inet |status"
+    else
+        if command -v ip &> /dev/null; then
+            ip addr | grep -E "inet |link/ether" | grep -v "127.0.0.1" | grep -v "::1"
+        elif command -v ifconfig &> /dev/null; then
+            ifconfig | grep -E "inet |ether" | grep -v "127.0.0.1" | grep -v "::1"
+        else
+            echo "Network information not available"
+        fi
+    fi
+
+    echo -e "\n${BOLD_GREEN}========================================${NC}"
     press_any_key
 }
