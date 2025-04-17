@@ -5,33 +5,46 @@ check_for_updates() {
     local REPO_OWNER="haywang"
     local REPO_NAME="oneclick.sh"
     local CURRENT_VERSION="$VERSION"
+    local DEBUG=${1:-0}  # Default to non-debug mode
 
-    show_info "Checking for updates..."
+    # Show messages only in debug mode
+    if [ "$DEBUG" = "1" ]; then
+        show_info "Checking for updates..."
+    fi
 
     # Check if curl is available
     if ! command -v curl &> /dev/null; then
-        show_error "curl is not installed. Cannot check for updates."
+        if [ "$DEBUG" = "1" ]; then
+            show_error "curl is not installed. Cannot check for updates."
+        fi
         return 1
     fi
 
     # Get the latest release version from GitHub
-    local LATEST_RELEASE=$(curl -s "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest" | grep "tag_name" | cut -d '"' -f 4)
+    local LATEST_RELEASE=""
+    LATEST_RELEASE=$(curl -s -m 5 "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest" | grep "tag_name" | cut -d '"' -f 4)
 
     # If no release found or error
     if [ -z "$LATEST_RELEASE" ]; then
-        show_warning "Could not retrieve latest version. Please check your internet connection."
+        if [ "$DEBUG" = "1" ]; then
+            show_warning "Could not retrieve latest version. Please check your internet connection."
+        fi
         return 1
     fi
 
     # Remove 'v' prefix if present
     LATEST_RELEASE="${LATEST_RELEASE#v}"
 
-    show_success "Current version: $CURRENT_VERSION"
-    show_success "Latest version: $LATEST_RELEASE"
+    if [ "$DEBUG" = "1" ]; then
+        show_success "Current version: $CURRENT_VERSION"
+        show_success "Latest version: $LATEST_RELEASE"
+    fi
 
     # Compare versions
     if [ "$CURRENT_VERSION" = "$LATEST_RELEASE" ]; then
-        show_success "You are using the latest version."
+        if [ "$DEBUG" = "1" ]; then
+            show_success "You are using the latest version."
+        fi
         return 0  # No update needed
     else
         # Version comparison based on semver (assuming format like 1.0.0)
@@ -54,7 +67,9 @@ check_for_updates() {
         fi
 
         if [ "$UPDATE_AVAILABLE" = true ]; then
-            show_warning "A new version is available. Would you like to update? (y/n)"
+            # Always show the update notification, even in non-debug mode
+            show_warning "A new version is available: $LATEST_RELEASE (current: $CURRENT_VERSION)"
+            show_warning "Would you like to update? (y/n)"
             read -r UPDATE_CHOICE
 
             if [[ "$UPDATE_CHOICE" =~ ^[Yy]$ ]]; then
@@ -65,7 +80,9 @@ check_for_updates() {
                 return 0  # No update performed
             fi
         else
-            show_success "You are using the latest version."
+            if [ "$DEBUG" = "1" ]; then
+                show_success "You are using the latest version."
+            fi
             return 0  # No update needed
         fi
     fi
@@ -148,7 +165,8 @@ check_update_menu() {
 
         case $choice in
             1)
-                check_for_updates
+                # Call check_for_updates with debug=1 (verbose mode)
+                check_for_updates 1
                 press_any_key
                 ;;
             2)
