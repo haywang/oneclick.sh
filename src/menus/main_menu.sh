@@ -15,6 +15,7 @@ show_main_menu() {
     echo -e "${GREEN}6. Video Download${NC}"
     echo -e "${GREEN}7. Quick Install Common Tools${NC}"
     echo -e "${GREEN}8. Macbook Setup${NC}"
+    echo -e "${GREEN}9. Check for Updates${NC}"
     echo -e "${BOLD_RED}0. Exit${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
@@ -37,6 +38,7 @@ main_menu() {
             6) video_download_menu ;;
             7) quick_install_menu ;;
             8) macbook_setup_menu ;;
+            9) check_update_menu ;;
             0) exit_script ;;
             *)
                 show_error "Invalid option. Please try again."

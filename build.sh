@@ -69,13 +69,30 @@ mkdir -p dist
     echo ""
     cat src/menus/video_menu.sh
     echo ""
-    cat src/menus/git_menu.sh
+    cat src/menus/macbook_menu.sh
+    echo ""
+    cat src/menus/update_menu.sh
     echo ""
     cat src/menus/quick_install_menu.sh
     echo ""
-    cat src/menus/macbook_menu.sh
-    echo ""
     cat src/menus/main_menu.sh
+    echo ""
+
+    # Add auto-update check at startup
+    echo "# Auto-update check"
+    echo "# Check for updates at startup if no arguments provided"
+    echo "if [ \$# -eq 0 ]; then"
+    echo "    check_for_updates > /dev/null 2>&1 &"
+    echo "    CHECK_PID=\$!"
+    echo "    # Give it 3 seconds max to check for updates"
+    echo "    { sleep 3; kill -0 \$CHECK_PID 2>/dev/null && kill \$CHECK_PID; } &"
+    echo "    wait \$CHECK_PID 2>/dev/null"
+    echo "    UPDATE_STATUS=\$?"
+    echo "    if [ \$UPDATE_STATUS -eq 2 ]; then"
+    echo "        # Update was performed and script restarted"
+    echo "        exit 0"
+    echo "    fi"
+    echo "fi"
     echo ""
 
     # Add version flag handler
