@@ -19,7 +19,7 @@ A comprehensive shell script that provides one-click solutions for common system
 ### Option 1: One-line Installation (Recommended)
 
 ```bash
-curl -sL https://raw.githubusercontent.com/username/oneclick.sh/main/install.sh | bash
+curl -sL https://raw.githubusercontent.com/haywang/oneclick.sh/main/install.sh | bash
 ```
 
 This will download and install the latest release of oneclick.sh to `~/.oneclick` and create a symbolic link in `~/bin`.
@@ -28,7 +28,7 @@ This will download and install the latest release of oneclick.sh to `~/.oneclick
 
 ```bash
 # Clone the repository
-git clone https://github.com/username/oneclick.sh.git
+git clone https://github.com/haywang/oneclick.sh.git
 cd oneclick.sh
 
 # Either run the wrapper script (it will build automatically if needed)
