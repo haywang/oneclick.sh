@@ -102,6 +102,8 @@ show_ops_menu() {
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${GREEN}1. PM2 Management${NC}"
     echo -e "${GREEN}2. Nginx Management${NC}"
+    echo -e "${GREEN}3. Reboot System${NC}"
+    echo -e "${GREEN}4. Shutdown System${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_RED}9. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
@@ -119,6 +121,8 @@ ops_management_menu() {
         case $choice in
             1) pm2_management_menu ;;
             2) nginx_management_menu ;;
+            3) system_reboot ;;
+            4) system_shutdown ;;
             0) break ;;
             9) exit_script ;;
             *)

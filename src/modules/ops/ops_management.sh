@@ -308,3 +308,33 @@ nginx_disable_site() {
     show_success "Site disabled successfully."
     press_any_key
 }
+
+# System control functions
+
+# Reboot the system
+system_reboot() {
+    echo -e "${YELLOW}WARNING: You are about to reboot the system.${NC}"
+    echo -e "${CYAN}Are you sure you want to continue? (y/n): ${NC}"
+    read -r confirm
+
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}System will reboot now...${NC}"
+        sudo reboot
+    else
+        show_info "Reboot cancelled."
+    fi
+}
+
+# Shutdown the system
+system_shutdown() {
+    echo -e "${YELLOW}WARNING: You are about to shutdown the system.${NC}"
+    echo -e "${CYAN}Are you sure you want to continue? (y/n): ${NC}"
+    read -r confirm
+
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}System will shutdown now...${NC}"
+        sudo shutdown -h now
+    else
+        show_info "Shutdown cancelled."
+    fi
+}
