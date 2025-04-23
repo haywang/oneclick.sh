@@ -14,6 +14,8 @@ clear
     echo -e "${GREEN}4. Add All Changes${NC}"
     echo -e "${GREEN}5. Commit Changes${NC}"
     echo -e "${GREEN}6. Remove Directory from Git Cache${NC}"
+    echo -e "${GREEN}7. Set Git HTTP/HTTPS Proxy${NC}"
+    echo -e "${GREEN}8. Remove Git Proxy Settings${NC}"
     echo -e "${YELLOW}0. Back to Main Menu${NC}"
     echo -e "${BOLD_RED}9. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
@@ -44,6 +46,12 @@ git_operations_menu() {
                 ;;
             6)
                 git_rm_cached_directory
+                ;;
+            7)
+                git_set_proxy
+                ;;
+            8)
+                git_unset_proxy
                 ;;
             0)
                 break
