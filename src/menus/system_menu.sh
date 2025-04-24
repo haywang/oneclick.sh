@@ -11,6 +11,7 @@ show_system_menu() {
     echo -e "${GREEN}3. UFW Firewall${NC}"
     echo -e "${GREEN}4. System Monitor${NC}"
     echo -e "${GREEN}5. System Information${NC}"
+    echo -e "${GREEN}6. Time Management${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
     echo -e "${BOLD_RED}9. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
@@ -31,6 +32,7 @@ system_management_menu() {
             3) ufw_management_menu ;;  # UFW防火墙管理
             4) top_command ;;  # 系统监控
             5) show_system_info ;;  # 系统信息
+            6) time_management_menu ;;  # 时间管理
             0) break ;;
             9) exit_script ;;
             *)
@@ -390,4 +392,42 @@ show_system_info() {
 
     echo -e "\n${BOLD_GREEN}========================================${NC}"
     press_any_key
+}
+
+# Display time management menu
+show_time_management_menu() {
+    clear
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${BOLD_GREEN}         TIME MANAGEMENT              ${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${GREEN}1. Display Current Time and Timezone${NC}"
+    echo -e "${GREEN}2. Set System Time Manually${NC}"
+    echo -e "${GREEN}3. Synchronize Time with NTP Server${NC}"
+    echo -e "${GREEN}4. Change System Timezone${NC}"
+    echo -e "${YELLOW}0. Back to System Menu${NC}"
+    echo -e "${BOLD_GREEN}========================================${NC}"
+    echo -e "${CYAN}Please enter your choice: ${NC}"
+}
+
+# Handle time management menu choices
+time_management_menu() {
+    local choice
+
+    while true; do
+        show_time_management_menu
+        read -r choice
+
+        case $choice in
+            1) display_current_time ;;
+            2) set_system_time_manually ;;
+            3) sync_time_with_ntp ;;
+            4) change_timezone ;;
+            0) break ;;
+            *)
+                echo -e "${BOLD_RED}Invalid option. Please try again.${NC}"
+                echo -e "${CYAN}Press any key to continue...${NC}"
+                read -n 1
+                ;;
+        esac
+    done
 }
