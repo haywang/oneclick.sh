@@ -109,7 +109,7 @@ mkdir -p dist
 
     # Add version flag handler
     echo "# Handle command line arguments"
-    echo "if [[ \"\$1\" == \"--version\" ]]; then"
+    echo "if [[ \"\$1\" == \"--version\" || \"\$1\" == \"-v\" ]]; then"
     echo "    echo \"oneclick.sh version \$VERSION\""
     echo "    echo \"Build date: \$BUILD_DATE\""
     echo "    exit 0"
