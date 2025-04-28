@@ -9,7 +9,8 @@ A comprehensive shell script that provides one-click solutions for common system
 - UFW Firewall Management
 - File Transfer Operations (rsync, scp)
 - Video Download with yt-dlp
-- Git Operations
+- Git Operations (status, pull, push, commit, proxy settings)
+- System Time Management (manual setting, NTP sync, timezone configuration)
 - System Monitoring
 - Port Management
 - And more...
@@ -53,7 +54,21 @@ To check the version of oneclick.sh:
 
 ```bash
 oneclick --version
+# Or use the shorter version
+oneclick -v
 ```
+
+### Recent Additions (v1.0.10)
+
+- **System Time Management**: Fixed time synchronization issues common on Linux systems
+  - Display and configure current time and timezone
+  - Manual time setting
+  - NTP server synchronization
+  - Timezone selection and configuration
+- **Git Proxy Settings**: Added ability to configure HTTP/HTTPS proxies for Git
+  - Set Git HTTP and HTTPS proxies
+  - Remove Git proxy settings
+- **Version Check Shortcut**: Added `-v` as a shorthand for `--version`
 
 ## Development
 
@@ -95,7 +110,7 @@ The `bump_version.sh` script helps manage version numbers for releases:
 
 - Uses semantic versioning (MAJOR.MINOR.PATCH)
 - The version number is embedded in the built script
-- Users can check the version with `oneclick --version`
+- Users can check the version with `oneclick --version` or `oneclick -v`
 
 ## Release Process
 
