@@ -630,3 +630,78 @@ download_custom_quality() {
 
     press_any_key
 }
+
+# Download subtitles from YouTube video
+download_subtitles() {
+    if ! check_ytdlp_installed; then
+        return 1
+    fi
+
+    show_info "Enter YouTube video URL:"
+    read -r url
+
+    if ! validate_url "$url"; then
+        show_error "Invalid URL format"
+        press_any_key
+        return 1
+    fi
+
+    show_info "Select subtitle format:"
+    echo "1) SRT (SubRip Text)"
+    echo "2) VTT (Web Video Text Tracks)"
+    echo "3) ASS (Advanced SubStation Alpha)"
+    echo "4) SSA (SubStation Alpha)"
+    read -r format_choice
+
+    local format=""
+    case $format_choice in
+        1) format="srt" ;;
+        2) format="vtt" ;;
+        3) format="ass" ;;
+        4) format="ssa" ;;
+        *)
+            show_error "Invalid format choice"
+            press_any_key
+            return 1
+            ;;
+    esac
+
+    show_info "Select language:"
+    echo "1) English"
+    echo "2) Chinese (Simplified)"
+    echo "3) Chinese (Traditional)"
+    echo "4) Japanese"
+    echo "5) Korean"
+    echo "6) Auto (will download all available languages)"
+    read -r lang_choice
+
+    local lang=""
+    case $lang_choice in
+        1) lang="en" ;;
+        2) lang="zh-Hans" ;;
+        3) lang="zh-Hant" ;;
+        4) lang="ja" ;;
+        5) lang="ko" ;;
+        6) lang="all" ;;
+        *)
+            show_error "Invalid language choice"
+            press_any_key
+            return 1
+            ;;
+    esac
+
+    show_info "Downloading subtitles..."
+    if [ "$lang" = "all" ]; then
+        yt-dlp --write-sub --sub-lang all --convert-subs "$format" "$url"
+    else
+        yt-dlp --write-sub --sub-lang "$lang" --convert-subs "$format" "$url"
+    fi
+
+    if [ $? -eq 0 ]; then
+        show_success "Subtitles downloaded successfully!"
+    else
+        show_error "Failed to download subtitles"
+    fi
+
+    press_any_key
+}

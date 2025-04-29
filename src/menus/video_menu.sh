@@ -14,8 +14,9 @@ show_video_menu() {
     echo -e "${GREEN}6. Download audio only${NC}"
     echo -e "${GREEN}7. Show available formats${NC}"
     echo -e "${GREEN}8. Download with custom format${NC}"
+    echo -e "${GREEN}9. Download subtitles${NC}"
     echo -e "${YELLOW}0. Back to main menu${NC}"
-    echo -e "${BOLD_RED}9. Exit Program${NC}"
+    echo -e "${BOLD_RED}q. Exit Program${NC}"
     echo -e "${BOLD_GREEN}========================================${NC}"
     echo -e "${CYAN}Please enter your choice: ${NC}"
 }
@@ -37,8 +38,9 @@ video_download_menu() {
             6) download_audio_only ;;
             7) show_formats ;;
             8) download_custom_quality ;;
+            9) download_subtitles ;;
             0) return ;;
-            9) exit_script ;;
+            q|Q) exit_script ;;
             *)
                 show_error "Invalid option. Please try again."
                 sleep 2
