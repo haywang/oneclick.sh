@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Version information
-VERSION="1.0.10"
+VERSION="1.0.11"
 BUILD_DATE=$(date "+%Y-%m-%d %H:%M:%S")
 
 # Create dist directory if it doesn't exist
